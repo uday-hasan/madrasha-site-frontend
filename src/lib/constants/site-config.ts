@@ -1,0 +1,26 @@
+export const siteConfig = {
+  name: "দারুল উলুম মাদ্রাসা",
+  nameEn: "Darul Uloom Madrasha",
+  tagline: "ইলম ও আমলের পথে",
+  description:
+    "একটি ঐতিহ্যবাহী ইসলামী শিক্ষা প্রতিষ্ঠান যেখানে কুরআন, হাদিস ও আধুনিক শিক্ষার সমন্বয় করা হয়।",
+  address: "৪২, মাদ্রাসা রোড, পুরান ঢাকা",
+  city: "ঢাকা",
+  district: "ঢাকা",
+  postalCode: "১২০৪",
+  phone: ["০১৭১২-৩৪৫৬৭৮", "০১৮১২-৩৪৫৬৭৮"],
+  email: ["info@darululoom.edu.bd", "admin@darululoom.edu.bd"],
+  foundedYear: "১৯৮৫",
+  founderName: "মাওলানা আবদুল হাকিম রহ.",
+  currentPrincipal: "মাওলানা মুহাম্মদ ইউসুফ",
+  totalStudents: 1200,
+  totalTeachers: 45,
+  totalDepartments: 8,
+  yearsOfExcellence: 40,
+  socialLinks: {
+    facebook: "https://facebook.com/darululoom",
+    youtube: "https://youtube.com/darululoom",
+  },
+  officeHours: "শনি - বৃহস্পতি: সকাল ৮টা - বিকেল ৪টা",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+};
