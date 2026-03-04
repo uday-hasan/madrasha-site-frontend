@@ -1,0 +1,48 @@
+import { ExamResult } from "@/types/result";
+
+export const fakeResults: ExamResult[] = [
+  {
+    id: 1,
+    studentName: "মুহাম্মদ আবদুল্লাহ",
+    rollNumber: "১০০১",
+    registration: "২০২৩০১০০১",
+    department: "আলিম",
+    year: "২০২৪",
+    exam: "বার্ষিক পরীক্ষা",
+    result: "পাস",
+    gpa: "৫.০০",
+  },
+  {
+    id: 2,
+    studentName: "মুহাম্মদ ইব্রাহিম",
+    rollNumber: "১০০২",
+    registration: "২০২৩০১০০২",
+    department: "আলিম",
+    year: "২০২৪",
+    exam: "বার্ষিক পরীক্ষা",
+    result: "পাস",
+    gpa: "৪.৭৫",
+  },
+  {
+    id: 3,
+    studentName: "মুহাম্মদ ইসমাইল",
+    rollNumber: "১০০৩",
+    registration: "২০২৩০১০০৩",
+    department: "ফাজিল",
+    year: "২০২৪",
+    exam: "বার্ষিক পরীক্ষা",
+    result: "পাস",
+    gpa: "৪.৫০",
+  },
+  {
+    id: 4,
+    studentName: "মুহাম্মদ উমর",
+    rollNumber: "২০০১",
+    registration: "২০২২০২০০১",
+    department: "ফাজিল",
+    year: "২০২৪",
+    exam: "বার্ষিক পরীক্ষা",
+    result: "পাস",
+    gpa: "৪.২৫",
+  },
+];
