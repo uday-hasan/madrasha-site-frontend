@@ -35,19 +35,19 @@ export const siteConfig = {
   address: "১৪, পশ্চিম শিকারপুর (সাঈদী মসজিদ সংলগ্ন)",
   city: "পিরোজপুর",
   district: "পিরোজপুর",
-  postalCode: "",
+  postalCode: "৮৫০০",
 
   phone: ["01723-567282", "01704-300316"],
-  email: [],
+  email: ["darularqam1.2.24@gmail.com"],
 
-  foundedYear: "",
-  founderName: "",
+  foundedYear: "২০২৪",
+  founderName: "আবদুল্লাহ আল-মামুন (শাহীন)",
   currentPrincipal: "আবদুল্লাহ আল-মামুন (শাহীন)",
 
-  totalStudents: 0,
-  totalTeachers: 0,
+  totalStudents: 90,
+  totalTeachers: 5,
   totalDepartments: 3,
-  yearsOfExcellence: 0,
+  yearsOfExcellence: 2,
 
   departments: ["নূরানী কিন্ডারগার্টেন", "মক্তব বিভাগ", "হিফজ বিভাগ"],
 
@@ -61,8 +61,8 @@ export const siteConfig = {
   ],
 
   socialLinks: {
-    facebook: "",
-    youtube: "",
+    facebook: "https://www.facebook.com/share/1B9vWz88R7/",
+    youtube: "https://youtube.com/@abumasrur6002?si=ZbzXcN6umpZKw-4Q",
   },
 
   officeHours: "শনি - বৃহস্পতি: সকাল ৮টা - বিকেল ৪টা",
