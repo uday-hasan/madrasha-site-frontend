@@ -1,0 +1,18 @@
+import DonationPageClient from "@/components/donation/DonationPageClient";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "দান-সদকা | এবিসি ইসলামিয়া মাদরাসা",
+  description:
+    "এবিসি ইসলামিয়া মাদরাসার উন্নয়নে দান করুন। মসজিদ নির্মাণ, এতিম স্পন্সরশিপ, লাইব্রেরি উন্নয়ন ও অন্যান্য খাতে দান করতে পারেন।",
+  openGraph: {
+    title: "দান-সদকা | এবিসি ইসলামিয়া মাদরাসা",
+    description:
+      "দ্বীনি শিক্ষার প্রসারে আপনার সহযোগিতা প্রয়োজন। আল্লাহর সন্তুষ্টির জন্য দান করুন।",
+    type: "website",
+  },
+};
+
+export default function DonationPage() {
+  return <DonationPageClient />;
+}

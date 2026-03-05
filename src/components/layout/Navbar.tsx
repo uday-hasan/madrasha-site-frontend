@@ -13,7 +13,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -37,10 +37,14 @@ export function Navbar() {
               <div key={item.href} className="relative group">
                 {item.children ? (
                   <>
-                    <button className={cn(
-                      "flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent",
-                      pathname.startsWith(item.href) && item.href !== "/" && "text-primary font-medium"
-                    )}>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent",
+                        pathname.startsWith(item.href) &&
+                          item.href !== "/" &&
+                          "text-primary font-medium",
+                      )}
+                    >
                       {item.label}
                       <ChevronDown className="h-3 w-3" />
                     </button>
@@ -61,8 +65,10 @@ export function Navbar() {
                     href={item.href}
                     className={cn(
                       "px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent block",
-                      (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href)))
-                        && "text-primary font-medium bg-accent"
+                      (pathname === item.href ||
+                        (item.href !== "/" &&
+                          pathname.startsWith(item.href))) &&
+                        "text-primary font-medium bg-accent",
                     )}
                   >
                     {item.label}

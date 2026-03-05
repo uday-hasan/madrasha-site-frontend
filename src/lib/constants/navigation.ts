@@ -22,6 +22,8 @@ export const navItems: NavItem[] = [
   { label: "ফলাফল", href: "/results" },
   { label: "গ্যালারি", href: "/gallery" },
   { label: "নোটিশ", href: "/notices" },
+  { label: "প্রশ্ন ও উত্তর", href: "/question-answer" },
+  { label: "দান করুণ", href: "/donation" },
   { label: "যোগাযোগ", href: "/contact" },
 ];
 

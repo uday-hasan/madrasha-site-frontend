@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { siteConfig } from "@/lib/constants/site-config";
+
+const hindSiliguri = Hind_Siliguri({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["bengali"],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -14,7 +20,7 @@ export const metadata: Metadata = {
     "ইসলামী শিক্ষা",
     "কুরআন",
     "হাদিস",
-    "ঢাকা",
+    "পিরোজপুর",
     "বাংলাদেশ",
     siteConfig.nameEn,
   ],
@@ -39,19 +45,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="bn" suppressHydrationWarning className={hindSiliguri.className}>
+      <head></head>
       <body className="font-sans antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
