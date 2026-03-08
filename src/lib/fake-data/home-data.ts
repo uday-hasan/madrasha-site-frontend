@@ -1,12 +1,13 @@
 import { HeroSlide, Stat, NewsItem } from "@/types/home";
+import { siteConfig } from "../constants/site-config";
 
 export const fakeHeroSlides: HeroSlide[] = [
   {
     id: 1,
-    title: "দারুল উলুম মাদ্রাসায় স্বাগতম",
+    title: `${siteConfig.name} এ আপনাকে স্বাগতম`,
     subtitle: "ইলম ও আমলের পথে",
     description:
-      "১৯৮৫ সাল থেকে ইসলামী শিক্ষার আলো ছড়িয়ে দিচ্ছে আমাদের প্রতিষ্ঠান। কুরআন, হাদিস ও আধুনিক শিক্ষার সমন্বয়ে গড়ে তুলছি আলোকিত প্রজন্ম।",
+      "২০২২ সাল থেকে ইসলামী শিক্ষার আলো ছড়িয়ে দিচ্ছে আমাদের প্রতিষ্ঠান। কুরআন, হাদিস ও আধুনিক শিক্ষার সমন্বয়ে গড়ে তুলছি আলোকিত প্রজন্ম।",
     imageUrl: "/images/hero-1.jpg",
     ctaText: "ভর্তি তথ্য জানুন",
     ctaLink: "/admission",
@@ -23,7 +24,7 @@ export const fakeHeroSlides: HeroSlide[] = [
   },
   {
     id: 3,
-    title: "২০২৫ সালের ভর্তি চলছে",
+    title: "২০২৬ সালের ভর্তি চলছে",
     subtitle: "সীমিত আসন, এখনই আবেদন করুন",
     description:
       "নতুন শিক্ষাবর্ষে ভর্তির আবেদন গ্রহণ করা হচ্ছে। সকল বিভাগে আসন সীমিত। দ্রুত আবেদন করুন।",
@@ -34,11 +35,11 @@ export const fakeHeroSlides: HeroSlide[] = [
 ];
 
 export const fakeStats: Stat[] = [
-  { id: 1, label: "মোট শিক্ষার্থী", value: 1200, suffix: "+", icon: "users" },
+  { id: 1, label: "মোট শিক্ষার্থী", value: 90, suffix: "+", icon: "users" },
   {
     id: 2,
     label: "অভিজ্ঞ শিক্ষক",
-    value: 45,
+    value: 4,
     suffix: "জন",
     icon: "graduation-cap",
   },

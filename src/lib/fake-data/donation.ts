@@ -1,4 +1,5 @@
 import { DonationConfig } from "@/types/donation";
+import { siteConfig } from "../constants/site-config";
 
 export const donationConfig: DonationConfig = {
   pageTitle: "দান-সদকা",
@@ -73,11 +74,10 @@ export const donationConfig: DonationConfig = {
       type: "bank",
       name: "ব্যাংক ট্রান্সফার",
       details: {
-        "ব্যাংকের নাম": "ইসলামী ব্যাংক বাংলাদেশ লিমিটেড",
-        শাখা: "মতিঝিল শাখা, ঢাকা",
-        "হিসাব নাম": "এবিসি ইসলামিয়া মাদরাসা তহবিল",
-        "হিসাব নম্বর": "২০৫০১-২৩০০০-৫৬৭৮৯",
-        "রাউটিং নম্বর": "১২৫২৬০৭৫৫",
+        "ব্যাংকের নাম": "আল-আরাফাহ ইসলামী ব্যাংক পিএলসি",
+        শাখা: "পিরোজপুর শাখা",
+        "হিসাব নম্বর": "1611120044315",
+        "রাউটিং নম্বর": "015790763",
       },
     },
     {
@@ -85,9 +85,8 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "বিকাশ (Bkash)",
       details: {
-        "বিকাশ নম্বর": "০১৭১২-৩৪৫৬৭৮",
-        "অ্যাকাউন্ট টাইপ": "মার্চেন্ট",
-        রেফারেন্স: "ABC-DONATION",
+        "বিকাশ নম্বর": "+8801723567282",
+        "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
       },
     },
     {
@@ -95,9 +94,8 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "নগদ (Nagad)",
       details: {
-        "নগদ নম্বর": "০১৮১২-৩৪৫৬৭৮",
-        "অ্যাকাউন্ট টাইপ": "মার্চেন্ট",
-        রেফারেন্স: "ABC-DONATION",
+        "নগদ নম্বর": "+8801723567282",
+        "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
       },
     },
     {
@@ -105,15 +103,14 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "রকেট (Rocket)",
       details: {
-        "রকেট নম্বর": "০১৯১২-৩৪৫৬৭৮১",
+        "রকেট নম্বর": "+8801723567282",
         "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
-        রেফারেন্স: "ABC-DONATION",
       },
     },
   ],
   contactForDonation: {
-    phone: "+৮৮০-১২৩৪-৫৬৭৮৯০",
-    email: "donation@abcmadrasa.edu.bd",
+    phone: siteConfig.phone[0],
+    email: siteConfig.email[0],
     note: "দান সংক্রান্ত যেকোনো তথ্যের জন্য উপরোক্ত নম্বরে যোগাযোগ করুন। অফিস সময়: সকাল ৯টা - বিকাল ৫টা (শুক্রবার বন্ধ)।",
   },
 };

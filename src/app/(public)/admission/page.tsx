@@ -5,10 +5,11 @@ import { fakeAdmissionInfo } from "@/lib/fake-data/admission-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Calendar, FileText, Clock } from "lucide-react";
+import { siteConfig } from "@/lib/constants/site-config";
 
 export const metadata: Metadata = {
   title: "ভর্তি তথ্য",
-  description: "দারুল উলুম মাদ্রাসায় ভর্তির তথ্য ও প্রয়োজনীয় কাগজপত্র।",
+  description: `${siteConfig.name} ভর্তির তথ্য ও প্রয়োজনীয় কাগজপত্র।`,
 };
 
 export default function AdmissionPage() {
@@ -46,37 +47,58 @@ export default function AdmissionPage() {
               </div>
 
               <div>
-                <SectionTitle title="বিভাগওয়ারি ভর্তির তথ্য" centered={false} />
+                <SectionTitle
+                  title="বিভাগওয়ারি ভর্তির তথ্য"
+                  centered={false}
+                />
                 <div className="space-y-4">
                   {admission.requirements.map((req, i) => (
                     <Card key={i}>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">{req.department}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {req.department}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="font-semibold text-muted-foreground">বয়স:</p>
+                            <p className="font-semibold text-muted-foreground">
+                              বয়স:
+                            </p>
                             <p>{req.minimumAge}</p>
                           </div>
                           <div>
-                            <p className="font-semibold text-muted-foreground">আসন:</p>
+                            <p className="font-semibold text-muted-foreground">
+                              আসন:
+                            </p>
                             <p>{req.seats}টি</p>
                           </div>
                           <div>
-                            <p className="font-semibold text-muted-foreground">যোগ্যতা:</p>
+                            <p className="font-semibold text-muted-foreground">
+                              যোগ্যতা:
+                            </p>
                             <p>{req.minimumQualification}</p>
                           </div>
                           <div>
-                            <p className="font-semibold text-muted-foreground">মাসিক বেতন:</p>
-                            <p className="text-primary font-semibold">{req.fees}</p>
+                            <p className="font-semibold text-muted-foreground">
+                              মাসিক বেতন:
+                            </p>
+                            <p className="text-primary font-semibold">
+                              {req.fees}
+                            </p>
                           </div>
                         </div>
                         <div>
-                          <p className="font-semibold text-muted-foreground mb-2 text-sm">প্রয়োজনীয় কাগজপত্র:</p>
+                          <p className="font-semibold text-muted-foreground mb-2 text-sm">
+                            প্রয়োজনীয় কাগজপত্র:
+                          </p>
                           <div className="flex flex-wrap gap-2">
                             {req.documents.map((doc) => (
-                              <Badge key={doc} variant="outline" className="text-xs">
+                              <Badge
+                                key={doc}
+                                variant="outline"
+                                className="text-xs"
+                              >
                                 <FileText className="h-3 w-3 mr-1" />
                                 {doc}
                               </Badge>

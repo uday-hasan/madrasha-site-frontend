@@ -29,6 +29,7 @@ export const useContactStore = create<ContactStore>((set) => ({
       set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
     }
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   submitContactForm: async (_data: ContactFormData) => {
     set({ isSubmitting: true, error: null, submitSuccess: false });
     try {

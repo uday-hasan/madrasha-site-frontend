@@ -1,12 +1,15 @@
 "use client";
 
+import { cn } from "@/lib/utils/cn";
+import { Button } from "@/components/ui/button";
+
 interface QACategoryFilterProps {
   categories: string[];
   selectedCategory: string;
   onSelect: (category: string) => void;
 }
 
-export default function QACategoryFilter({
+export function QACategoryFilter({
   categories,
   selectedCategory,
   onSelect,
@@ -16,18 +19,15 @@ export default function QACategoryFilter({
   return (
     <div className="flex flex-wrap gap-2">
       {allCategories.map((cat) => (
-        <button
+        <Button
           key={cat}
+          variant={selectedCategory === cat ? "default" : "outline"}
+          size="sm"
           onClick={() => onSelect(cat)}
-          className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200
-            ${
-              selectedCategory === cat
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 border border-border"
-            }`}
+          className={cn("rounded-full text-xs md:text-sm")}
         >
           {cat}
-        </button>
+        </Button>
       ))}
     </div>
   );

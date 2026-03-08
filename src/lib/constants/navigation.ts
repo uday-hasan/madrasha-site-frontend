@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
   { label: "গ্যালারি", href: "/gallery" },
   { label: "নোটিশ", href: "/notices" },
   { label: "প্রশ্ন ও উত্তর", href: "/question-answer" },
-  { label: "দান করুণ", href: "/donation" },
+  { label: "অনুদান", href: "/donation" },
   { label: "যোগাযোগ", href: "/contact" },
 ];
 
