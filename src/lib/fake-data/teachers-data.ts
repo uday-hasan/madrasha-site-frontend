@@ -56,3 +56,21 @@ export const fakeTeachers: Teacher[] = [
     bio: "মোঃ জুবায়ের হাসান নূরানী বিভাগের একজন তরুণ শিক্ষক। তিনি ২ বছর ধরে শিশুদের নূরানী কায়দা ও কোরআন তিলাওয়াত শিক্ষা দিয়ে আসছেন।",
   },
 ];
+
+export const leadership = {
+  chairman: {
+    name: "আলহাজ্ব ক্বারী আলী আহমাদ",
+    designation: "সভাপতি",
+    imageUrl: "/images/leadership/chairman.jpg",
+  },
+  viceChairman: {
+    name: "আলহাজ্ব মোঃ গোলাম মোস্তফা",
+    designation: "সহ-সভাপতি",
+    imageUrl: "/images/leadership/vice-chairman.jpg",
+  },
+  founder: {
+    name: "আব্দুল্লাহ আল মামুন (শাহীন)",
+    designation: "প্রতিষ্ঠাতা ও প্রিন্সিপাল",
+    imageUrl: "/images/leadership/founder.jpg",
+  },
+};
