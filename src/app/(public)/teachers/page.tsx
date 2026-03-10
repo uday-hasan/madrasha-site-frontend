@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
-import { fakeTeachers } from "@/lib/fake-data/teachers-data";
+import { fakeTeachers, leadership } from "@/lib/fake-data/teachers-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Briefcase } from "lucide-react";
+import { GraduationCap, Briefcase, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "শিক্ষকমণ্ডলী",
-  description: "দারুল উলুম মাদ্রাসার অভিজ্ঞ শিক্ষকমণ্ডলীর পরিচয়।",
+  description: "মাদরাসা দারুল আরকাম আল ইসলামিয়ার অভিজ্ঞ শিক্ষকমণ্ডলীর পরিচয়।",
 };
 
 export default function TeachersPage() {
+  const leadershipMembers = [
+    leadership.chairman,
+    leadership.viceChairman,
+    leadership.founder,
+  ];
+
   return (
     <>
       <PageHeader
@@ -19,6 +25,31 @@ export default function TeachersPage() {
         subtitle="অভিজ্ঞ ও যোগ্য শিক্ষকগণের তত্ত্বাবধানে পাঠদান"
       />
 
+      {/* Leadership Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <SectionTitle
+            title="পরিচালনা পরিষদ"
+            subtitle="আমাদের মাদরাসার নেতৃত্বদানকারী ব্যক্তিত্ব"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {leadershipMembers.map((member) => (
+              <Card key={member.name} className="text-center hover:shadow-lg transition-shadow overflow-hidden">
+                <div className="h-3 bg-primary" />
+                <CardContent className="pt-8 pb-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                    <Shield className="h-8 w-8" />
+                  </div>
+                  <h3 className="font-bold text-lg leading-tight">{member.name}</h3>
+                  <p className="text-primary font-medium mt-1">{member.designation}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Teachers Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <SectionTitle
