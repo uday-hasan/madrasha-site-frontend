@@ -92,6 +92,5 @@ export const fakeDepartments: Department[] = [
       "ঈমান-আকীদা",
       "জরুরী হালাল-হারাম বিধান",
     ],
-    isFirstInPirojpur: true,
   },
 ];

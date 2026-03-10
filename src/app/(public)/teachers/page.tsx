@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
-import { fakeTeachers } from "@/lib/fake-data/teachers-data";
+import { fakeTeachers, leadership } from "@/lib/fake-data/teachers-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Briefcase } from "lucide-react";
+import { GraduationCap, Briefcase, Crown } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "শিক্ষকমণ্ডলী",
@@ -19,6 +19,33 @@ export default function TeachersPage() {
         subtitle="অভিজ্ঞ ও যোগ্য শিক্ষকগণের তত্ত্বাবধানে পাঠদান"
       />
 
+      {/* Leadership Section */}
+      <section className="py-16 bg-primary/5">
+        <div className="container mx-auto px-4">
+          <SectionTitle
+            title="নেতৃত্ব"
+            subtitle="প্রতিষ্ঠানের পরিচালনা পর্ষদ"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[leadership.chairman, leadership.viceChairman, leadership.founder].map(
+              (leader) => (
+                <Card key={leader.name} className="text-center hover:shadow-lg transition-shadow overflow-hidden">
+                  <div className="h-2 bg-primary" />
+                  <CardContent className="p-6">
+                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-primary/20">
+                      <Crown className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="font-bold text-lg leading-tight mb-1">{leader.name}</h3>
+                    <p className="text-primary text-sm font-medium">{leader.designation}</p>
+                  </CardContent>
+                </Card>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Teachers Grid Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <SectionTitle

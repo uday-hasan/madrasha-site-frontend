@@ -35,19 +35,19 @@ export const fakeHeroSlides: HeroSlide[] = [
 ];
 
 export const fakeStats: Stat[] = [
-  { id: 1, label: "মোট শিক্ষার্থী", value: 90, suffix: "+", icon: "users" },
+  { id: 1, label: "মোট শিক্ষার্থী", value: 100, suffix: "+", icon: "users" },
   {
     id: 2,
     label: "অভিজ্ঞ শিক্ষক",
-    value: 4,
+    value: 5,
     suffix: "জন",
     icon: "graduation-cap",
   },
-  { id: 3, label: "বিভাগ", value: 8, suffix: "টি", icon: "book" },
+  { id: 3, label: "বিভাগ", value: 5, suffix: "টি", icon: "book" },
   {
     id: 4,
     label: "বছরের অভিজ্ঞতা",
-    value: 40,
+    value: 2,
     suffix: "+",
     icon: "calendar",
   },

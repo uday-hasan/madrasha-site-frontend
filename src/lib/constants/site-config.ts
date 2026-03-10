@@ -27,8 +27,10 @@ export const siteConfig = {
   chairman: "আলহাজ্ব ক্বারী আলী আহমাদ",
   viceChairman: "আলহাজ্ব মোঃ গোলাম মোস্তফা",
   founder: "আব্দুল্লাহ আল মামুন",
+  founderName: "আব্দুল্লাহ আল মামুন",
   currentPrincipal: "আব্দুল্লাহ আল মামুন (শাহীন)",
   founderDesignation: "প্রতিষ্ঠাতা ও প্রিন্সিপাল",
+  foundedYear: 2024,
 
   // === Stats ===
 
