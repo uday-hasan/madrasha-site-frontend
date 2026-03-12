@@ -63,7 +63,7 @@ export const donationConfig: DonationConfig = {
     {
       id: "1",
       type: "bank",
-      name: "ব্যাংক ���্রান্সফার",
+      name: "ব্যাংক ট্রান্সফার",
       details: {
         "ব্যাংকের নাম": "আল-আরাফাহ ইসলামী ব্যাংক পিএলসি",
         শাখা: "পিরোজপুর শাখা",
@@ -76,7 +76,7 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "বিকাশ (Bkash)",
       details: {
-        "বিকাশ নম্বর": "+8801723567282",
+        "বিকাশ নম্বর": "+881723567282",
         "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
       },
     },
@@ -85,8 +85,8 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "নগদ (Nagad)",
       details: {
-        "নগদ নম্বর": "+8801723567282",
-        "অ্যাকাউন্ট টাইপ": "প���র্সোনাল",
+        "নগদ নম্বর": "+881723567282",
+        "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
       },
     },
     {
@@ -94,14 +94,14 @@ export const donationConfig: DonationConfig = {
       type: "mobile",
       name: "রকেট (Rocket)",
       details: {
-        "রকেট নম্বর": "+8801723567282",
+        "রকেট নম্বর": "+881723567282",
         "অ্যাকাউন্ট টাইপ": "পার্সোনাল",
       },
     },
   ],
   contactForDonation: {
-    phone: "+8801XXXXXXXXX", // TODO: Add real phone
-    email: "donation@darularkam.edu.bd", // TODO: Add real email
+    phone: "+881723567282",
+    email: "darularqam1.2.24@gmail.com",
     note: "দান সংক্রান্ত যেকোনো তথ্যের জন্য উপরোক্ত নম্বরে যোগাযোগ করুন। অফিস সময়: শনি-বৃহস্পতি সকাল ৮টা - বিকেল ৪টা।",
   },
 };
