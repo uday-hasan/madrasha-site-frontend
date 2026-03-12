@@ -9,10 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { foundationServices } from "@/lib/fake-data/service-data";
 import { CheckCircle, Shield, Building2, Hammer } from "lucide-react";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "আমাদের সম্পর্কে",
-  description: "মাদরাসা দারুল আরকাম আল ইসলামিয়ার ইতিহাস, লক্ষ্য ও উদ্দেশ্য সম্পর্কে জানুন।",
+  description:
+    "মাদরাসা দারুল আরকাম আল ইসলামিয়ার ইতিহাস, লক্ষ্য ও উদ্দেশ্য সম্পর্কে জানুন।",
 };
 
 export default function AboutPage() {
@@ -25,10 +27,7 @@ export default function AboutPage() {
 
   return (
     <>
-      <PageHeader
-        title={about.title}
-        subtitle={about.subtitle}
-      />
+      <PageHeader title={about.title} subtitle={about.subtitle} />
 
       {/* Highlighted Tagline */}
       <section className="py-8 bg-primary">
@@ -45,8 +44,12 @@ export default function AboutPage() {
           <div className="flex items-center justify-center gap-3">
             <Building2 className="h-6 w-6 text-primary" />
             <p className="text-muted-foreground">
-              <span className="font-semibold text-foreground">{siteConfig.parentOrganization.role}:</span>{" "}
-              <span className="text-primary font-bold">{siteConfig.parentOrganization.name}</span>
+              <span className="font-semibold text-foreground">
+                {siteConfig.parentOrganization.role}:
+              </span>{" "}
+              <span className="text-primary font-bold">
+                {siteConfig.parentOrganization.name}
+              </span>
             </p>
           </div>
         </div>
@@ -98,7 +101,10 @@ export default function AboutPage() {
       {/* Leadership Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <SectionTitle title="পরিচালনা পরিষদ" subtitle="আমাদের মাদরাসার নেতৃত্বদানকারী ব্যক্তিত্ব" />
+          <SectionTitle
+            title="পরিচালনা পরিষদ"
+            subtitle="আমাদের মাদরাসার নেতৃত্বদানকারী ব্যক্তিত্ব"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {leadershipMembers.map((member, i) => (
               <AnimatedSection key={member.name} delay={i * 0.1}>
@@ -108,7 +114,9 @@ export default function AboutPage() {
                       <Shield className="h-10 w-10" />
                     </div>
                     <h3 className="font-bold text-lg">{member.name}</h3>
-                    <p className="text-primary font-medium mt-1">{member.designation}</p>
+                    <p className="text-primary font-medium mt-1">
+                      {member.designation}
+                    </p>
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -138,7 +146,10 @@ export default function AboutPage() {
       {/* Facilities Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <SectionTitle title="আমাদের সুযোগ-সুবিধা" subtitle="শিক্ষার্থীদের জন্য আমাদের প্রতিষ্ঠানে যা রয়েছে" />
+          <SectionTitle
+            title="আমাদের সুযোগ-সুবিধা"
+            subtitle="শিক্ষার্থীদের জন্য আমাদের প্রতিষ্ঠানে যা রয়েছে"
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {siteConfig.facilities.map((facility, i) => (
               <AnimatedSection key={facility} delay={i * 0.1}>
@@ -154,35 +165,56 @@ export default function AboutPage() {
 
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <SectionTitle title="আমাদের অর্জন" subtitle="আমাদের যাত্রার মাইলফলকগুলো" />
+          <SectionTitle
+            title="আমাদের অর্জন"
+            subtitle="আমাদের যাত্রার মাইলফলকগুলো"
+          />
           <div className="relative">
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
             <div className="space-y-8">
               {fakeAchievements.map((achievement, i) => (
                 <AnimatedSection key={achievement.id} delay={i * 0.1}>
-                  <div className={`flex items-center gap-6 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
+                  <div
+                    className={`flex items-center gap-6 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+                  >
                     <div className="flex-1 md:text-right md:pr-8">
                       {i % 2 === 0 ? (
                         <Card>
                           <CardContent className="p-4">
-                            <p className="text-primary font-bold">{achievement.year}</p>
-                            <h3 className="font-semibold mt-1">{achievement.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{achievement.description}</p>
+                            <p className="text-primary font-bold">
+                              {achievement.year}
+                            </p>
+                            <h3 className="font-semibold mt-1">
+                              {achievement.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {achievement.description}
+                            </p>
                           </CardContent>
                         </Card>
-                      ) : <div />}
+                      ) : (
+                        <div />
+                      )}
                     </div>
                     <div className="shrink-0 w-4 h-4 bg-primary rounded-full border-4 border-background z-10 hidden md:block" />
                     <div className="flex-1 md:pl-8">
                       {i % 2 !== 0 ? (
                         <Card>
                           <CardContent className="p-4">
-                            <p className="text-primary font-bold">{achievement.year}</p>
-                            <h3 className="font-semibold mt-1">{achievement.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{achievement.description}</p>
+                            <p className="text-primary font-bold">
+                              {achievement.year}
+                            </p>
+                            <h3 className="font-semibold mt-1">
+                              {achievement.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {achievement.description}
+                            </p>
                           </CardContent>
                         </Card>
-                      ) : <div />}
+                      ) : (
+                        <div />
+                      )}
                     </div>
                   </div>
                 </AnimatedSection>
@@ -204,7 +236,11 @@ export default function AboutPage() {
               <AnimatedSection key={service.id} delay={i * 0.05}>
                 <Card className="h-full hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
-                    <span className="text-3xl" role="img" aria-label={service.title}>
+                    <span
+                      className="text-3xl"
+                      role="img"
+                      aria-label={service.title}
+                    >
                       {service.icon}
                     </span>
                     <h3 className="font-semibold mt-3 mb-1">{service.title}</h3>
@@ -230,12 +266,24 @@ export default function AboutPage() {
             {foundationServices.futureProjects.map((project, i) => (
               <AnimatedSection key={project.title} delay={i * 0.1}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="bg-primary/10 h-48 flex items-center justify-center">
-                    <Hammer className="h-16 w-16 text-primary/40" />
+                  <div className="bg-primary/10 h-58 flex items-center justify-center overflow-hidden">
+                    {project.image ? (
+                      <Image
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover object-top"
+                        width={400}
+                        height={200}
+                      />
+                    ) : (
+                      <Hammer className="h-16 w-16 text-primary/40" />
+                    )}
                   </div>
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-lg leading-snug">{project.title}</h3>
+                      <h3 className="font-bold text-lg leading-snug">
+                        {project.title}
+                      </h3>
                       <Badge className="shrink-0">{project.status}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">
@@ -255,14 +303,24 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { label: "প্রতিষ্ঠাকাল", value: siteConfig.foundedYear },
-              { label: "মোট শিক্ষার্থী", value: `${siteConfig.totalStudents}+` },
-              { label: "অভিজ্ঞ শিক্ষক", value: `${siteConfig.totalTeachers}জন` },
+              {
+                label: "মোট শিক্ষার্থী",
+                value: `${siteConfig.totalStudents}+`,
+              },
+              {
+                label: "অভিজ্ঞ শিক্ষক",
+                value: `${siteConfig.totalTeachers}জন`,
+              },
               { label: "বিভাগ", value: `${siteConfig.totalDepartments}টি` },
             ].map((item) => (
               <Card key={item.label} className="text-center p-6">
                 <CardContent className="pt-0">
-                  <p className="text-3xl font-bold text-primary">{item.value}</p>
-                  <p className="text-muted-foreground mt-1 text-sm">{item.label}</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {item.value}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {item.label}
+                  </p>
                 </CardContent>
               </Card>
             ))}
