@@ -6,7 +6,9 @@ import { fakeAboutContent, fakeAchievements } from "@/lib/fake-data/about-data";
 import { leadership } from "@/lib/fake-data/teachers-data";
 import { siteConfig } from "@/lib/constants/site-config";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Shield, Building2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { foundationServices } from "@/lib/fake-data/service-data";
+import { CheckCircle, Shield, Building2, Hammer } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "আমাদের সম্পর্কে",
@@ -186,6 +188,63 @@ export default function AboutPage() {
                 </AnimatedSection>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Foundation Services Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <SectionTitle
+            title="আল আশরাফ ফাউন্ডেশনের সেবাসমূহ"
+            subtitle={foundationServices.description}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {foundationServices.services.map((service, i) => (
+              <AnimatedSection key={service.id} delay={i * 0.05}>
+                <Card className="h-full hover:shadow-md transition-shadow">
+                  <CardContent className="p-5">
+                    <span className="text-3xl" role="img" aria-label={service.title}>
+                      {service.icon}
+                    </span>
+                    <h3 className="font-semibold mt-3 mb-1">{service.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {service.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Proposed Building Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <SectionTitle
+            title="প্রস্তাবিত ভবন"
+            subtitle="ভবিষ্যত পরিকল্পনা ও উন্নয়ন প্রকল্প"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {foundationServices.futureProjects.map((project, i) => (
+              <AnimatedSection key={project.title} delay={i * 0.1}>
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="bg-primary/10 h-48 flex items-center justify-center">
+                    <Hammer className="h-16 w-16 text-primary/40" />
+                  </div>
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-bold text-lg leading-snug">{project.title}</h3>
+                      <Badge className="shrink-0">{project.status}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {project.estimatedCost}
+                    </p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
