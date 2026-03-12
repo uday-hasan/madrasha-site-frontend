@@ -21,7 +21,7 @@ export const fakeGalleryImages: GalleryImage[] = [
     id: 2,
     title: "হিফজ বিভাগের ক্লাস",
     description: "অভিজ্ঞ উস্তাদের তত্ত্বাবধানে হিফজ ক্লাস চলছে",
-    imageUrl: "/images/gallery/class-1.jpg",
+    imageUrl: "/images/gallery/calender-2026.jpeg",
     category: "classroom",
     date: "2024-11-20",
   },
