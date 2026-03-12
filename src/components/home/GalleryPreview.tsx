@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { useGalleryStore } from "@/stores/galleryStore";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, PlayCircle, X } from "lucide-react";
 import Image from "next/image";
 import {
   AlertDialog,
@@ -13,19 +13,17 @@ import {
   AlertDialogTitle,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { X } from "lucide-react";
+import { GalleryImage } from "@/types/gallery";
 
 export function GalleryPreview() {
   const { images, fetchGallery } = useGalleryStore();
-  const [selectedImage, setSelectedImage] = useState<(typeof images)[0] | null>(
-    null,
-  );
+  const [selectedItem, setSelectedItem] = useState<GalleryImage | null>(null);
 
   useEffect(() => {
     fetchGallery();
   }, [fetchGallery]);
 
-  const previewImages = images.slice(0, 6);
+  const previewImages = images.slice(0, 3);
 
   return (
     <section className="py-16 bg-muted/30">
@@ -35,35 +33,49 @@ export function GalleryPreview() {
           subtitle="আমাদের বিভিন্ন কার্যক্রম ও অনুষ্ঠানের মুহূর্তগুলো"
         />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          {previewImages.map((image) => (
+          {previewImages.map((item) => (
             <div
-              key={image.id}
-              onClick={() => image.imageUrl && setSelectedImage(image)}
+              key={item.id}
+              onClick={() => setSelectedItem(item)}
               className="aspect-video bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group relative cursor-pointer"
             >
-              {image.imageUrl ? (
+              {item.mediaType === "image" && item.imageUrl ? (
                 <>
                   <Image
-                    src={image.imageUrl}
-                    alt={image.title}
+                    src={item.imageUrl}
+                    alt={item.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
                     <div>
                       <p className="text-sm text-white font-medium">
-                        {image.title}
+                        {item.title}
                       </p>
-                      <p className="text-xs text-white/70">{image.category}</p>
+                      <p className="text-xs text-white/70">{item.category}</p>
+                    </div>
+                  </div>
+                </>
+              ) : item.mediaType === "video" ? (
+                <>
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <PlayCircle className="h-12 w-12 text-primary/60 group-hover:text-primary transition-colors" />
+                  </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                    <div>
+                      <p className="text-sm text-white font-medium">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-white/70">{item.category}</p>
                     </div>
                   </div>
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-4">
                   <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-2 group-hover:text-primary transition-colors" />
-                  <p className="text-sm text-muted-foreground">{image.title}</p>
+                  <p className="text-sm text-muted-foreground">{item.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {image.category}
+                    {item.category}
                   </p>
                 </div>
               )}
@@ -78,20 +90,20 @@ export function GalleryPreview() {
         </div>
       </div>
 
-      {/* Image Preview Modal */}
+      {/* Media Preview Modal */}
       <AlertDialog
-        open={!!selectedImage}
-        onOpenChange={() => setSelectedImage(null)}
+        open={!!selectedItem}
+        onOpenChange={() => setSelectedItem(null)}
       >
         <AlertDialogContent className="max-w-3xl p-0 overflow-hidden">
           <AlertDialogHeader className="flex flex-row items-center justify-between px-5 pt-4 pb-2">
             <div>
               <AlertDialogTitle className="text-lg">
-                {selectedImage?.title}
+                {selectedItem?.title}
               </AlertDialogTitle>
-              {selectedImage?.category && (
+              {selectedItem?.category && (
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {selectedImage.category}
+                  {selectedItem.category}
                 </p>
               )}
             </div>
@@ -100,15 +112,29 @@ export function GalleryPreview() {
             </AlertDialogCancel>
           </AlertDialogHeader>
 
-          {selectedImage?.imageUrl && (
-            <div className="relative w-full aspect-video">
+          <div className="relative w-full aspect-video bg-black">
+            {selectedItem?.mediaType === "image" && selectedItem.imageUrl ? (
               <Image
-                src={selectedImage.imageUrl}
-                alt={selectedImage.title}
+                src={selectedItem.imageUrl}
+                alt={selectedItem.title}
                 fill
-                className="object-contain bg-black"
+                className="object-contain"
               />
-            </div>
+            ) : selectedItem?.mediaType === "video" && selectedItem.videoUrl ? (
+              <iframe
+                src={selectedItem.videoUrl}
+                title={selectedItem.title}
+                className="w-full h-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            ) : null}
+          </div>
+
+          {selectedItem?.description && (
+            <p className="text-sm text-muted-foreground px-5 py-3">
+              {selectedItem.description}
+            </p>
           )}
         </AlertDialogContent>
       </AlertDialog>

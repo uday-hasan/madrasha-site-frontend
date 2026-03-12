@@ -8,7 +8,7 @@ export const fakeHeroSlides: HeroSlide[] = [
     subtitle: "ইলম ও আমলের পথে আদর্শ প্রজন্ম গঠন",
     description:
       "২০২৪ সাল থেকে ইসলামী শিক্ষার আলো ছড়িয়ে দিচ্ছে আমাদের প্রতিষ্ঠান। কুরআন, হাদিস ও নৈতিক শিক্ষার সমন্বয়ে গড়ে তুলছি আলোকিত প্রজন্ম।",
-    imageUrl: "/images/hero-1.jpg",
+    imageUrl: "/images/home/banner-1.jpeg",
     ctaText: "ভর্তি তথ্য জানুন",
     ctaLink: "/admission",
   },
@@ -18,7 +18,7 @@ export const fakeHeroSlides: HeroSlide[] = [
     subtitle: "কোরআনের হাফেজ তৈরির কারখানা",
     description:
       "অভিজ্ঞ উস্তাদের তত্ত্বাবধানে পবিত্র কুরআনুল কারীম হিফজ করুন। বিশেষ পদ্ধতিতে সহজে মুখস্থ করার সুযোগ।",
-    imageUrl: "/images/hero-2.jpg",
+    imageUrl: "/images/home/banner-2.jpeg",
     ctaText: "বিভাগ সম্পর্কে জানুন",
     ctaLink: "/departments/hifz",
   },
@@ -28,7 +28,7 @@ export const fakeHeroSlides: HeroSlide[] = [
     subtitle: "সীমিত আসন, এখনই আবেদন করুন",
     description:
       "নতুন শিক্ষাবর্ষে ভর্তির আবেদন গ্রহণ করা হচ্ছে। নূরানী, নাজেরা, হিফজ, মক্তব ও ফরজে আইন বিভাগে আসন সীমিত। দ্রুত আবেদন করুন।",
-    imageUrl: "/images/hero-3.jpg",
+    imageUrl: "/images/home/banner-3.jpeg",
     ctaText: "আবেদন করুন",
     ctaLink: "/admission",
   },

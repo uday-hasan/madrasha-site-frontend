@@ -1,7 +1,10 @@
 "use client";
 import { create } from "zustand";
 import { GalleryImage, GalleryCategory } from "@/types/gallery";
-import { fakeGalleryImages, fakeGalleryCategories } from "@/lib/fake-data/gallery-data";
+import {
+  fakeGalleryImages,
+  fakeGalleryCategories,
+} from "@/lib/fake-data/gallery-data";
 import { fakeDelay } from "@/lib/api/client";
 
 interface GalleryStore {
@@ -24,7 +27,11 @@ export const useGalleryStore = create<GalleryStore>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await fakeDelay(300);
-      set({ images: fakeGalleryImages, categories: fakeGalleryCategories, isLoading: false });
+      set({
+        images: fakeGalleryImages,
+        categories: fakeGalleryCategories,
+        isLoading: false,
+      });
     } catch {
       set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
     }
