@@ -61,7 +61,7 @@ export const foundationServices = {
       title: "১০ তলা মসজিদ-মাদরাসা কমপ্লেক্স নির্মাণ",
       estimatedCost: "আনুমানিক ৩০ কোটি টাকা",
       image: "/images/offered_building.jpeg",
-      status: "প্রস্তাবিত",
+      status: "প্রস্তাবিত | Proposed | مُقْتَرَح",
     },
   ],
 };

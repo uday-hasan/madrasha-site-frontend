@@ -20,11 +20,11 @@ export const fakeGalleryImages: GalleryImage[] = [
   },
   {
     id: 2,
-    title: "হিফজ বিভাগের ক্লাস",
-    description: "অভিজ্ঞ উস্তাদের তত্ত্বাবধানে হিফজ ক্লাস চলছে",
+    title: "ক্যালেন্ডার",
+    description: "আমাদের বার্ষিক ক্যালেন্ডার ২০২৬",
     imageUrl: "/images/gallery/calender-2026.jpeg",
     mediaType: "image",
-    category: "classroom",
+    category: "resource",
     date: "2024-11-20",
   },
   {

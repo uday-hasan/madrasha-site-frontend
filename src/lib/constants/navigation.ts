@@ -29,8 +29,24 @@ export const navItems: NavItem[] = [
 
 export const adminNavItems: NavItem[] = [
   { label: "ড্যাশবোর্ড", href: "/admin/dashboard" },
-  { label: "নোটিশ", href: "/admin/notices" },
-  { label: "গ্যালারি", href: "/admin/gallery" },
-  { label: "শিক্ষক", href: "/admin/teachers" },
+  { label: "হোম", href: "/admin/home" },
+  { label: "আমাদের সম্পর্কে", href: "/admin/about" },
+  {
+    label: "বিভাগসমূহ",
+    href: "/admin/departments",
+    children: [
+      { label: "হিফজ বিভাগ", href: "/admin/departments/hifz" },
+      { label: "কিতাব বিভাগ", href: "/admin/departments/kitab" },
+      { label: "নাজেরা বিভাগ", href: "/admin/departments/nazera" },
+      { label: "মক্তব বিভাগ", href: "/admin/departments/maktab" },
+    ],
+  },
+  { label: "শিক্ষকমণ্ডলী", href: "/admin/teachers" },
+  { label: "ভর্তি তথ্য", href: "/admin/admission" },
   { label: "ফলাফল", href: "/admin/results" },
+  { label: "গ্যালারি", href: "/admin/gallery" },
+  { label: "নোটিশ", href: "/admin/notices" },
+  { label: "প্রশ্ন ও উত্তর", href: "/admin/question-answer" },
+  { label: "অনুদান", href: "/admin/donation" },
+  { label: "যোগাযোগ", href: "/admin/contact" },
 ];

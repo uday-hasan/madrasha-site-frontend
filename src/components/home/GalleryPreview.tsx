@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/shared/SectionTitle";
@@ -14,6 +14,73 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { GalleryImage } from "@/types/gallery";
+
+// Extracts YouTube video ID from any YouTube URL format
+function getYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+// Generates a thumbnail from a local video by seeking to 1s and drawing to canvas
+function LocalVideoThumbnail({
+  videoUrl,
+  title,
+}: {
+  videoUrl: string;
+  title: string;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const video = document.createElement("video");
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.preload = "metadata";
+    video.src = videoUrl;
+
+    video.addEventListener("loadeddata", () => {
+      video.currentTime = Math.min(1, video.duration * 0.1 || 1);
+    });
+
+    video.addEventListener("seeked", () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 360;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setReady(true);
+      }
+      video.src = "";
+    });
+
+    video.load();
+    return () => {
+      video.src = "";
+    };
+  }, [videoUrl]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-label={title}
+      className="absolute inset-0 w-full h-full transition-transform duration-300 group-hover:scale-105"
+      style={{ objectFit: "cover", opacity: ready ? 1 : 0 }}
+    />
+  );
+}
 
 export function GalleryPreview() {
   const { images, fetchGallery } = useGalleryStore();
@@ -33,54 +100,84 @@ export function GalleryPreview() {
           subtitle="আমাদের বিভিন্ন কার্যক্রম ও অনুষ্ঠানের মুহূর্তগুলো"
         />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          {previewImages.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => setSelectedItem(item)}
-              className="aspect-video bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group relative cursor-pointer"
-            >
-              {item.mediaType === "image" && item.imageUrl ? (
-                <>
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                    <div>
-                      <p className="text-sm text-white font-medium">
+          {previewImages.map((item) => {
+            const ytId =
+              item.mediaType === "video" && item.videoUrl
+                ? getYouTubeId(item.videoUrl)
+                : null;
+
+            return (
+              <div
+                key={item.id}
+                onClick={() => setSelectedItem(item)}
+                className="aspect-video bg-muted border rounded-lg overflow-hidden hover:shadow-md transition-shadow group relative cursor-pointer"
+              >
+                {/* ── IMAGE ── */}
+                {item.mediaType === "image" && item.imageUrl ? (
+                  <>
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
+                      <div>
+                        <p className="text-sm text-white font-medium line-clamp-1">
+                          {item.title}
+                        </p>
+                        <p className="text-xs text-white/70">{item.category}</p>
+                      </div>
+                    </div>
+                  </>
+                ) : item.mediaType === "video" && item.videoUrl ? (
+                  <>
+                    {/* Thumbnail: YouTube or local canvas */}
+                    {ytId ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                        alt={item.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <LocalVideoThumbnail
+                        videoUrl={item.videoUrl}
+                        title={item.title}
+                      />
+                    )}
+
+                    {/* Dark overlay */}
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-300" />
+
+                    {/* Play icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <PlayCircle className="h-12 w-12 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                    </div>
+
+                    {/* Always-visible title */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-3">
+                      <p className="text-sm text-white font-medium line-clamp-1">
                         {item.title}
                       </p>
                       <p className="text-xs text-white/70">{item.category}</p>
                     </div>
+                  </>
+                ) : (
+                  /* Fallback */
+                  <div className="flex flex-col items-center justify-center h-full p-4">
+                    <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-2 group-hover:text-primary transition-colors" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      {item.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {item.category}
+                    </p>
                   </div>
-                </>
-              ) : item.mediaType === "video" ? (
-                <>
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <PlayCircle className="h-12 w-12 text-primary/60 group-hover:text-primary transition-colors" />
-                  </div>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                    <div>
-                      <p className="text-sm text-white font-medium">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-white/70">{item.category}</p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full p-4">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-2 group-hover:text-primary transition-colors" />
-                  <p className="text-sm text-muted-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {item.category}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="text-center">
@@ -121,13 +218,25 @@ export function GalleryPreview() {
                 className="object-contain"
               />
             ) : selectedItem?.mediaType === "video" && selectedItem.videoUrl ? (
-              <iframe
-                src={selectedItem.videoUrl}
-                title={selectedItem.title}
-                className="w-full h-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
+              (() => {
+                const ytId = getYouTubeId(selectedItem.videoUrl);
+                return ytId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+                    title={selectedItem.title}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  />
+                ) : (
+                  <video
+                    src={selectedItem.videoUrl}
+                    controls
+                    autoPlay
+                    className="w-full h-full"
+                  />
+                );
+              })()
             ) : null}
           </div>
 

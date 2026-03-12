@@ -32,6 +32,26 @@ export const fakeHeroSlides: HeroSlide[] = [
     ctaText: "আবেদন করুন",
     ctaLink: "/admission",
   },
+  {
+    id: 4,
+    title: "২০২৫-২০২৬ সালের ভর্তি চলছে",
+    subtitle: "সীমিত আসন, এখনই আবেদন করুন",
+    description:
+      "নতুন শিক্ষাবর্ষে ভর্তির আবেদন গ্রহণ করা হচ্ছে। নূরানী, নাজেরা, হিফজ, মক্তব ও ফরজে আইন বিভাগে আসন সীমিত। দ্রুত আবেদন করুন।",
+    imageUrl: "/images/home/banner-4.jpeg",
+    ctaText: "আবেদন করুন",
+    ctaLink: "/admission",
+  },
+  {
+    id: 5,
+    title: "২০২৫-২০২৬ সালের ভর্তি চলছে",
+    subtitle: "সীমিত আসন, এখনই আবেদন করুন",
+    description:
+      "নতুন শিক্ষাবর্ষে ভর্তির আবেদন গ্রহণ করা হচ্ছে। নূরানী, নাজেরা, হিফজ, মক্তব ও ফরজে আইন বিভাগে আসন সীমিত। দ্রুত আবেদন করুন।",
+    imageUrl: "/images/home/banner-5.jpeg",
+    ctaText: "আবেদন করুন",
+    ctaLink: "/admission",
+  },
 ];
 
 export const fakeStats: Stat[] = [
