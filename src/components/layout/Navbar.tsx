@@ -8,6 +8,7 @@ import { MobileMenu } from "./MobileMenu";
 import { navItems } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site-config";
 import { cn } from "@/lib/utils/cn";
+import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -18,8 +19,14 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg">
-              দ
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg overflow-hidden">
+              <Image
+                src="/images/site_logo_with_bg.jpg"
+                alt={siteConfig.name}
+                width={40}
+                height={40}
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <div>
               <p className="font-bold text-primary leading-tight text-sm md:text-base">
