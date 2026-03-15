@@ -18,6 +18,6 @@ jobs:
           script: |
             cd /var/www/madrasha-site-frontend
             git pull
-            bun install
-            bun run build
+            /root/.bun/bin/bun install
+            /root/.bun/bin/bun run build
             systemctl restart nextapp
