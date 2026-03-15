@@ -14,9 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default function NoticesPage() {
-  const sortedNotices = [...fakeNotices].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sortedNotices = [...fakeNotices].slice(0, 2);
+  // .sort(
+  //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  // );
 
   return (
     <>
@@ -50,7 +51,9 @@ export default function NoticesPage() {
                           <span>{formatBanglaDate(notice.date)}</span>
                         </div>
                       </div>
-                      <h3 className="font-semibold text-lg mb-2">{notice.title}</h3>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {notice.title}
+                      </h3>
                       <p className="text-muted-foreground text-sm line-clamp-2">
                         {notice.content}
                       </p>
