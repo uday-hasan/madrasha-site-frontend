@@ -29,9 +29,9 @@ export function Navbar() {
               />
             </div>
             <div>
-              <p className="font-bold text-primary leading-tight text-sm md:text-base">
+              <h1 className="font-bold text-primary leading-tight text-sm md:text-base">
                 {siteConfig.name}
-              </p>
+              </h1>
               <p className="text-xs text-muted-foreground hidden sm:block">
                 {siteConfig.tagline}
               </p>

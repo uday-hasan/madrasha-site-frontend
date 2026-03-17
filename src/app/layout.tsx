@@ -11,7 +11,7 @@ const hindSiliguri = Hind_Siliguri({
 
 export const metadata: Metadata = {
   title: {
-    default: siteConfig.name,
+    default: `${siteConfig.name}, ${siteConfig.city} | ${siteConfig.nameEn}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -46,7 +46,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn" suppressHydrationWarning className={hindSiliguri.className}>
-      <head></head>
+      <head>
+        <title>মাদরাসা দারুল আরকাম আল ইসলামিয়া</title>
+
+        <link rel="canonical" href="https://www.madrasadarularqam.org/" />
+      </head>
       <body className="font-sans antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
