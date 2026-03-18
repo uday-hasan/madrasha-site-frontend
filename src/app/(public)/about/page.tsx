@@ -12,7 +12,7 @@ import { CheckCircle, Shield, Building2, Hammer } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "আমাদের সম্পর্কে",
+  title: `আমাদের সম্পর্কে | About Us`,
   description:
     "মাদরাসা দারুল আরকাম আল ইসলামিয়ার ইতিহাস, লক্ষ্য ও উদ্দেশ্য সম্পর্কে জানুন।",
 };
@@ -83,13 +83,21 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <AnimatedSection>
-              <h2 className="text-2xl font-bold mb-4">আমাদের লক্ষ্য</h2>
+              <h2 className="text-2xl font-bold mb-4">আবেদন</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                {about.request}
+              </p>
+            </AnimatedSection>
+            <AnimatedSection>
+              <h2 className="text-2xl font-bold mb-4">
+                আমাদের লক্ষ্য ও উদ্দেশ্য
+              </h2>
               <p className="text-muted-foreground leading-relaxed">
                 {about.mission}
               </p>
             </AnimatedSection>
             <AnimatedSection delay={0.2}>
-              <h2 className="text-2xl font-bold mb-4">আমাদের দৃষ্টিভঙ্গি</h2>
+              <h2 className="text-2xl font-bold mb-4">অবতরণিকা</h2>
               <p className="text-muted-foreground leading-relaxed">
                 {about.vision}
               </p>

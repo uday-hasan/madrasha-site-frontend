@@ -11,13 +11,13 @@ export function PageHeader({ title, subtitle, className }: PageHeaderProps) {
     <div
       className={cn(
         "bg-primary text-primary-foreground py-16 px-4 text-center",
-        className
+        className,
       )}
     >
       <div className="container mx-auto max-w-4xl">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
           {title}
-        </h1>
+        </h2>
         {subtitle && (
           <p className="text-lg md:text-xl opacity-90">{subtitle}</p>
         )}

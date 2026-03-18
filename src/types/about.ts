@@ -2,6 +2,7 @@ export interface AboutContent {
   title: string;
   subtitle: string;
   history: string;
+  request: string;
   mission: string;
   vision: string;
   values: string[];
