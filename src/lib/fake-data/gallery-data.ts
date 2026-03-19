@@ -56,11 +56,11 @@ export const fakeGalleryImages: GalleryImage[] = [
   },
   {
     id: 6,
-    title: "কম্পিউটার ল্যাব",
-    description: "নতুন কম্পিউটার ল্যাবে শিক্ষার্থীরা",
-    imageUrl: "/images/gallery/class-2.jpg",
+    title: "ইফতার",
+    description: "ইফতারে শিক্ষার্থীরা",
+    imageUrl: "/images/gallery/iftar.jpeg",
     mediaType: "image",
-    category: "classroom",
+    category: "events",
     date: "2024-09-15",
   },
 ];
