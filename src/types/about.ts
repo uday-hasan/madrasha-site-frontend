@@ -5,7 +5,7 @@ export interface AboutContent {
   request: string;
   mission: string;
   vision: string;
-  values: string[];
+  values: { title: string; content: string }[];
   foundedYear: number;
   founderName: string;
   founderMessage: string;
