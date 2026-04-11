@@ -1,18 +1,29 @@
-export interface AdminUser {
+export type UserRole = "ADMIN" | "USER";
+
+export interface User {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "superadmin";
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface LoginCredentials {
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+}
+
+// Map these to your backend validation logic
+export interface LoginInput {
   email: string;
-  password: string;
+  password?: string; // Optional if only using for specific logic, but usually required
 }
 
-export interface AuthState {
-  user: AdminUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+export interface RegisterInput {
+  name: string;
+  email: string;
+  password?: string;
 }

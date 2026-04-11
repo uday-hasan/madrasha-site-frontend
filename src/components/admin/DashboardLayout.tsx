@@ -1,14 +1,15 @@
 "use client";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
+// import { useAuthStore } from "@/stores/authStore";
 import { adminNavItems } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site-config";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { LogOut, Home } from "lucide-react";
 import { ReactNode } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -17,15 +18,15 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout, checkAuth } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+  // useEffect(() => {
+  //   checkAuth();
+  // }, [checkAuth]);
 
   const handleLogout = async () => {
     await logout();
-    router.push("/admin/login");
+    router.push("/login");
   };
 
   return (
@@ -46,7 +47,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                 pathname === item.href
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent"
+                  : "text-muted-foreground hover:bg-accent",
               )}
             >
               {item.label}

@@ -4,21 +4,27 @@ import type { NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect admin routes (except login)
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    const authToken = request.cookies.get("auth_token");
+  // 1. Get the refresh token from cookies
+  // (Using refreshToken because accessToken might expire while the session is still valid)
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-    if (!authToken) {
-      const loginUrl = new URL("/admin/login", request.url);
+  const isAuthPage = pathname.startsWith("/login");
+  const isAdminPage = pathname.startsWith("/admin");
+
+  // 2. Protect admin routes
+  if (isAdminPage && !isAuthPage) {
+    if (!refreshToken) {
+      // Not logged in, redirect to login
+      const loginUrl = new URL("/login", request.url);
+      // Optional: Store the page they were trying to visit to redirect back later
       loginUrl.searchParams.set("from", pathname);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Redirect authenticated users away from login page
-  if (pathname === "/admin/login") {
-    const authToken = request.cookies.get("auth_token");
-    if (authToken) {
+  // 3. Redirect authenticated users away from login page
+  if (isAuthPage) {
+    if (refreshToken) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
   }
@@ -26,6 +32,9 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+// 4. Matcher configuration
+// This ensures middleware only runs on admin routes and doesn't slow down
+// static files, images, or the homepage.
 export const config = {
   matcher: ["/admin/:path*"],
 };

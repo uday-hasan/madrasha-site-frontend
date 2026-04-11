@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { GalleryImage } from "@/types/gallery";
+import { GalleryItem as GalleryImage } from "@/types/gallery";
 
 // Extracts YouTube video ID from any YouTube URL format
 function getYouTubeId(url: string): string | null {
@@ -102,7 +102,7 @@ export function GalleryPreview() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           {previewImages.map((item) => {
             const ytId =
-              item.mediaType === "video" && item.videoUrl
+              item.mediaType === "VIDEO" && item.videoUrl
                 ? getYouTubeId(item.videoUrl)
                 : null;
 
@@ -113,7 +113,7 @@ export function GalleryPreview() {
                 className="aspect-video bg-muted border rounded-lg overflow-hidden hover:shadow-md transition-shadow group relative cursor-pointer"
               >
                 {/* ── IMAGE ── */}
-                {item.mediaType === "image" && item.imageUrl ? (
+                {item.mediaType === "IMAGE" && item.imageUrl ? (
                   <>
                     <Image
                       src={item.imageUrl}
@@ -130,7 +130,7 @@ export function GalleryPreview() {
                       </div>
                     </div>
                   </>
-                ) : item.mediaType === "video" && item.videoUrl ? (
+                ) : item.mediaType === "IMAGE" && item.videoUrl ? (
                   <>
                     {/* Thumbnail: YouTube or local canvas */}
                     {ytId ? (
@@ -210,14 +210,14 @@ export function GalleryPreview() {
           </AlertDialogHeader>
 
           <div className="relative w-full aspect-video bg-black">
-            {selectedItem?.mediaType === "image" && selectedItem.imageUrl ? (
+            {selectedItem?.mediaType === "IMAGE" && selectedItem.imageUrl ? (
               <Image
                 src={selectedItem.imageUrl}
                 alt={selectedItem.title}
                 fill
                 className="object-contain"
               />
-            ) : selectedItem?.mediaType === "video" && selectedItem.videoUrl ? (
+            ) : selectedItem?.mediaType === "VIDEO" && selectedItem.videoUrl ? (
               (() => {
                 const ytId = getYouTubeId(selectedItem.videoUrl);
                 return ytId ? (
