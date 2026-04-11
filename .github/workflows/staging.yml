@@ -1,0 +1,26 @@
+name: Deploy Frontend Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/madrasha-site-staging
+            git fetch origin
+            git checkout staging
+            git pull origin staging
+            /root/.bun/bin/bun install
+            /root/.bun/bin/bun run build
+            systemctl restart nextapp-staging
+            systemctl status nextapp-staging --no-pager
