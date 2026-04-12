@@ -88,11 +88,44 @@ export default function GalleryAdminPage() {
     fetchGallery();
   }, [fetchGallery]);
 
+  // --- FILE SIZE VALIDATION ---
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const validateFileSize = (
+    file: File,
+    mediaType: MediaType,
+  ): string | null => {
+    const isVideo = mediaType === "VIDEO";
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const maxSizeLabel = isVideo ? "10MB" : "5MB";
+
+    if (file.size > maxSize) {
+      return `${isVideo ? "ভিডিও" : "ছবি"} এর সর্বোচ্চ সাইজ ${maxSizeLabel} হতে পারবে। আপনার ফাইলের সাইজ ${(file.size / 1024 / 1024).toFixed(2)}MB।`;
+    }
+    return null;
+  };
+
   // --- HANDLERS ---
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
+
+    // Validate file size if file is being uploaded
+    const fileInput = e.currentTarget.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    if (fileInput?.files?.[0]) {
+      const mediaType = addMediaType;
+      const error = validateFileSize(fileInput.files[0], mediaType);
+      if (error) {
+        toast.error(error);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       await galleryService.create(formData);
       toast.success("সফলভাবে আপলোড করা হয়েছে");
@@ -110,6 +143,21 @@ export default function GalleryAdminPage() {
     if (!selectedItem) return;
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
+
+    // Validate file size if new file is being uploaded
+    const fileInput = e.currentTarget.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    if (fileInput?.files?.[0] && editUploadMethod === "file") {
+      const mediaType = editMediaType || selectedItem.mediaType;
+      const error = validateFileSize(fileInput.files[0], mediaType);
+      if (error) {
+        toast.error(error);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       await galleryService.update(selectedItem.id, formData);
       toast.success("তথ্য আপডেট করা হয়েছে");
@@ -228,6 +276,9 @@ export default function GalleryAdminPage() {
               {addUploadMethod === "file" ? (
                 <div className="space-y-2">
                   <Label>ফাইল নির্বাচন করুন</Label>
+                  <p className="text-xs text-muted-foreground">
+                    সর্বোচ্চ সাইজ: ছবি 5MB, ভিডিও 10MB
+                  </p>
                   <div className="flex items-center justify-center w-full">
                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -488,6 +539,9 @@ export default function GalleryAdminPage() {
               {editUploadMethod === "file" ? (
                 <div className="space-y-2">
                   <Label>মিডিয়া পরিবর্তন করুন (ঐচ্ছিক)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    সর্বোচ্চ সাইজ: ছবি 5MB, ভিডিও 10MB
+                  </p>
                   <Input name="file" type="file" />
                 </div>
               ) : (
