@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { MediaType } from "@/types/gallery";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import {
@@ -58,6 +59,16 @@ export default function GalleryAdminPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+
+  // Form States
+  const [addMediaType, setAddMediaType] = useState<MediaType>("IMAGE");
+  const [addUploadMethod, setAddUploadMethod] = useState<"file" | "url">(
+    "file",
+  );
+  const [editMediaType, setEditMediaType] = useState<MediaType>("IMAGE");
+  const [editUploadMethod, setEditUploadMethod] = useState<"file" | "url">(
+    "file",
+  );
 
   // --- API CALLS ---
   const fetchGallery = useCallback(async () => {
@@ -135,7 +146,16 @@ export default function GalleryAdminPage() {
           </p>
         </div>
 
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <Dialog
+          open={isAddOpen}
+          onOpenChange={(open) => {
+            setIsAddOpen(open);
+            if (!open) {
+              setAddMediaType("IMAGE");
+              setAddUploadMethod("file");
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="gap-2 shadow-lg hover:shadow-primary/20">
               <Plus className="h-4 w-4" /> নতুন মিডিয়া যুক্ত করুন
@@ -155,10 +175,25 @@ export default function GalleryAdminPage() {
                   placeholder="অনুষ্ঠানের নাম"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">বিবরণ</Label>
+                <Input
+                  id="description"
+                  name="description"
+                  required
+                  placeholder="অনুষ্ঠানের বিবরণ"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>টাইপ</Label>
-                  <Select name="mediaType" defaultValue="IMAGE">
+                  <Select
+                    name="mediaType"
+                    defaultValue="IMAGE"
+                    onValueChange={(value) =>
+                      setAddMediaType(value as MediaType)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -174,24 +209,57 @@ export default function GalleryAdminPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>ফাইল নির্বাচন করুন</Label>
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                      <p className="text-xs text-muted-foreground">
-                        ক্লিক করে ফাইল সিলেক্ট করুন
-                      </p>
-                    </div>
-                    <input
-                      name="file"
-                      type="file"
-                      className="hidden"
-                      required
-                    />
-                  </label>
-                </div>
+                <Label>আপলোড পদ্ধতি</Label>
+                <Select
+                  value={addUploadMethod}
+                  onValueChange={(value) =>
+                    setAddUploadMethod(value as "file" | "url")
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="file">ফাইল আপলোড</SelectItem>
+                    <SelectItem value="url">URL লিংক</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              {addUploadMethod === "file" ? (
+                <div className="space-y-2">
+                  <Label>ফাইল নির্বাচন করুন</Label>
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">
+                          ক্লিক করে ফাইল সিলেক্ট করুন
+                        </p>
+                      </div>
+                      <input name="file" type="file" className="hidden" />
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor={addMediaType === "IMAGE" ? "imageUrl" : "videoUrl"}
+                  >
+                    {addMediaType === "IMAGE" ? "ছবির URL" : "ভিডিওর URL"}
+                  </Label>
+                  <Input
+                    id={addMediaType === "IMAGE" ? "imageUrl" : "videoUrl"}
+                    name={addMediaType === "IMAGE" ? "imageUrl" : "videoUrl"}
+                    type="url"
+                    placeholder={
+                      addMediaType === "IMAGE"
+                        ? "https://example.com/image.jpg"
+                        : "https://youtube.com/watch?v=..."
+                    }
+                    required
+                  />
+                </div>
+              )}
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="animate-spin mr-2 h-4 w-4" />
@@ -230,15 +298,23 @@ export default function GalleryAdminPage() {
                   <div className="relative aspect-video bg-muted overflow-hidden">
                     {item.imageUrl ? (
                       <Image
-                        src={`${ASSET_URL}${item.imageUrl}`}
+                        src={
+                          item.imageUrl.startsWith("http")
+                            ? item.imageUrl
+                            : `${ASSET_URL}${item.imageUrl}`
+                        }
                         alt={item.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                         unoptimized
                       />
-                    ) : (
+                    ) : item.videoUrl ? (
                       <div className="w-full h-full flex items-center justify-center bg-slate-800">
                         <Video className="h-10 w-10 text-white/50" />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                        <ImageIcon className="h-10 w-10 text-white/50" />
                       </div>
                     )}
 
@@ -333,7 +409,18 @@ export default function GalleryAdminPage() {
       )}
 
       {/* --- EDIT MODAL --- */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+      <Dialog
+        open={isEditOpen}
+        onOpenChange={(open) => {
+          setIsEditOpen(open);
+          if (!open) {
+            setEditMediaType("IMAGE");
+            setEditUploadMethod("file");
+          } else if (selectedItem) {
+            setEditMediaType(selectedItem.mediaType);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>তথ্য পরিবর্তন করুন</DialogTitle>
@@ -354,22 +441,82 @@ export default function GalleryAdminPage() {
               </div>
               <div className="p-2 border rounded-md flex items-center gap-4 bg-muted/30">
                 <div className="relative h-14 w-14 rounded overflow-hidden">
-                  <Image
-                    src={`${ASSET_URL}${selectedItem.imageUrl}`}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    alt="preview"
-                  />
+                  {selectedItem.imageUrl ? (
+                    <Image
+                      src={
+                        selectedItem.imageUrl.startsWith("http")
+                          ? selectedItem.imageUrl
+                          : `${ASSET_URL}${selectedItem.imageUrl}`
+                      }
+                      fill
+                      className="object-cover"
+                      unoptimized
+                      alt="preview"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                      <Video className="h-6 w-6 text-white/50" />
+                    </div>
+                  )}
                 </div>
                 <div className="text-[10px] text-muted-foreground">
                   বর্তমান মিডিয়া প্রিভিউ
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>মিডিয়া পরিবর্তন করুন (ঐচ্ছিক)</Label>
-                <Input name="file" type="file" />
+                <Label>আপলোড পদ্ধতি</Label>
+                <Select
+                  value={editUploadMethod}
+                  onValueChange={(value) =>
+                    setEditUploadMethod(value as "file" | "url")
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="file">ফাইল আপলোড</SelectItem>
+                    <SelectItem value="url">URL লিংক</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              {editUploadMethod === "file" ? (
+                <div className="space-y-2">
+                  <Label>মিডিয়া পরিবর্তন করুন (ঐচ্ছিক)</Label>
+                  <Input name="file" type="file" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor={
+                      editMediaType === "IMAGE"
+                        ? "editImageUrl"
+                        : "editVideoUrl"
+                    }
+                  >
+                    {editMediaType === "IMAGE" ? "ছবির URL" : "ভিডিওর URL"}
+                  </Label>
+                  <Input
+                    id={
+                      editMediaType === "IMAGE"
+                        ? "editImageUrl"
+                        : "editVideoUrl"
+                    }
+                    name={editMediaType === "IMAGE" ? "imageUrl" : "videoUrl"}
+                    type="url"
+                    defaultValue={
+                      editMediaType === "IMAGE"
+                        ? selectedItem.imageUrl || ""
+                        : selectedItem.videoUrl || ""
+                    }
+                    placeholder={
+                      editMediaType === "IMAGE"
+                        ? "https://example.com/image.jpg"
+                        : "https://youtube.com/watch?v=..."
+                    }
+                  />
+                </div>
+              )}
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <Loader2 className="animate-spin h-4 w-4" />
@@ -393,13 +540,30 @@ export default function GalleryAdminPage() {
           {selectedItem && (
             <div className="flex flex-col">
               <div className="relative aspect-video w-full bg-slate-100">
-                <Image
-                  src={`${ASSET_URL}${selectedItem.imageUrl}`}
-                  alt={selectedItem.title}
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
+                {selectedItem.imageUrl ? (
+                  <Image
+                    src={
+                      selectedItem.imageUrl.startsWith("http")
+                        ? selectedItem.imageUrl
+                        : `${ASSET_URL}${selectedItem.imageUrl}`
+                    }
+                    alt={selectedItem.title}
+                    fill
+                    className="object-contain"
+                    unoptimized
+                  />
+                ) : selectedItem.videoUrl ? (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                    <Video className="h-16 w-16 text-white/50" />
+                    <p className="absolute mt-20 text-white/70 text-sm">
+                      ভিডিও
+                    </p>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-200">
+                    <ImageIcon className="h-16 w-16 text-slate-400" />
+                  </div>
+                )}
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex justify-between items-start">
