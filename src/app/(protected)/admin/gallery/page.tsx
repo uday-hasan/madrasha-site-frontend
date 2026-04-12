@@ -311,6 +311,11 @@ export default function GalleryAdminPage() {
                     ) : item.videoUrl ? (
                       <div className="w-full h-full flex items-center justify-center bg-slate-800">
                         <Video className="h-10 w-10 text-white/50" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                            <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-slate-800">
@@ -553,12 +558,29 @@ export default function GalleryAdminPage() {
                     unoptimized
                   />
                 ) : selectedItem.videoUrl ? (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-800">
-                    <Video className="h-16 w-16 text-white/50" />
-                    <p className="absolute mt-20 text-white/70 text-sm">
-                      ভিডিও
-                    </p>
-                  </div>
+                  selectedItem.videoUrl.includes("youtube.com") ||
+                  selectedItem.videoUrl.includes("youtu.be") ? (
+                    <iframe
+                      src={
+                        selectedItem.videoUrl
+                          .replace("watch?v=", "embed/")
+                          .replace("youtu.be/", "youtube.com/embed/")
+                          .split("&")[0]
+                          .split("?")[0]
+                      }
+                      title={selectedItem.title}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                      <Video className="h-16 w-16 text-white/50" />
+                      <p className="absolute mt-20 text-white/70 text-sm">
+                        ভিডিও
+                      </p>
+                    </div>
+                  )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-slate-200">
                     <ImageIcon className="h-16 w-16 text-slate-400" />
