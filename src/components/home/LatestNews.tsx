@@ -10,7 +10,8 @@ import { formatBanglaDate } from "@/lib/utils/helpers";
 import { Calendar } from "lucide-react";
 
 export function LatestNews() {
-  const { latestNews, fetchHomeData } = useHomeStore();
+  const { homeData, fetchHomeData } = useHomeStore();
+  const latestNews = homeData?.featuredNotices || [];
 
   useEffect(() => {
     fetchHomeData();
@@ -32,7 +33,7 @@ export function LatestNews() {
                   <Badge variant="secondary">{news.category}</Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    <span>{formatBanglaDate(news.date)}</span>
+                    <span>{formatBanglaDate(news.date || news.createdAt)}</span>
                   </div>
                 </div>
                 <CardTitle className="text-base leading-tight line-clamp-2">

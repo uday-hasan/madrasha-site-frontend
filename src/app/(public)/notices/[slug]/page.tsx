@@ -55,7 +55,7 @@ export default async function NoticeDetailPage({ params }: Props) {
               <Badge variant="secondary">{notice.category}</Badge>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                {formatBanglaDate(notice.date)}
+                {formatBanglaDate(notice.date || new Date().toISOString())}
               </div>
             </div>
 

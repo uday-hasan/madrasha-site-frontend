@@ -48,7 +48,11 @@ export default function NoticesPage() {
                         <Badge variant="secondary">{notice.category}</Badge>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          <span>{formatBanglaDate(notice.date)}</span>
+                          <span>
+                            {formatBanglaDate(
+                              notice.date || new Date().toISOString(),
+                            )}
+                          </span>
                         </div>
                       </div>
                       <h3 className="font-semibold text-lg mb-2">

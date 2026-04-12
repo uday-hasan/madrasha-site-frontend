@@ -2,7 +2,7 @@ import { Department } from "@/types/department";
 
 export const fakeDepartments: Department[] = [
   {
-    id: 1,
+    id: "1",
     name: "নূরানী কিন্ডারগার্টেন",
     slug: "nurani",
     description:
@@ -19,9 +19,13 @@ export const fakeDepartments: Department[] = [
     ],
     headTeacher: "মোঃ আব্দুল হালিম",
     totalStudents: 30,
+    isActive: true,
+    displayOrder: 1,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
   {
-    id: 2,
+    id: "2",
     name: "নাজেরা বিভাগ",
     slug: "nazera",
     description:
@@ -30,9 +34,13 @@ export const fakeDepartments: Department[] = [
     subjects: ["কোরআন নাজেরা", "তাজবিদ", "মুখস্থ সূরা", "ফরজে আইন মাসায়েল"],
     headTeacher: "হাফেজ মোঃ জাহিদুল ইসলাম",
     totalStudents: 25,
+    isActive: true,
+    displayOrder: 2,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
   {
-    id: 3,
+    id: "3",
     name: "হিফজুল কোরআন বিভাগ",
     slug: "hifz",
     description:
@@ -41,9 +49,13 @@ export const fakeDepartments: Department[] = [
     subjects: ["হিফজুল কোরআন", "তাজবিদ", "দৈনিক সবক ও সবকী দাওর"],
     headTeacher: "হাফেজ মোঃ জাহিদুল ইসলাম",
     totalStudents: 20,
+    isActive: true,
+    displayOrder: 3,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
   {
-    id: 4,
+    id: "4",
     name: "প্রভাতী ও বৈকালীন মক্তব বিভাগ",
     slug: "maktab",
     description:
@@ -52,9 +64,13 @@ export const fakeDepartments: Department[] = [
     subjects: ["আলিফ-বা-তা", "নূরানী কায়দা", "আমপারা", "প্রাথমিক দুআ-কালাম"],
     headTeacher: "মোঃ আব্দুর রহিম",
     totalStudents: 15,
+    isActive: true,
+    displayOrder: 4,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
   {
-    id: 5,
+    id: "5",
     name: "ফরজে আইন বিভাগ",
     slug: "forze-ain",
     description:
@@ -69,9 +85,13 @@ export const fakeDepartments: Department[] = [
     ],
     headTeacher: "মুফতী আব্দুল্লাহ আল মামুন",
     totalStudents: 10,
+    isActive: true,
+    displayOrder: 5,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
   {
-    id: 6,
+    id: "6",
     name: "কিতাব বিভাগ",
     slug: "kitab",
     description:
@@ -86,5 +106,9 @@ export const fakeDepartments: Department[] = [
     ],
     headTeacher: "মুফতী আব্দুল্লাহ আল মামুন",
     totalStudents: 10,
+    isActive: true,
+    displayOrder: 6,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
   },
 ];

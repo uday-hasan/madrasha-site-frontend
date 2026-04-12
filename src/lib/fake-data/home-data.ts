@@ -3,7 +3,7 @@ import { siteConfig } from "../constants/site-config";
 
 export const fakeHeroSlides: HeroSlide[] = [
   {
-    id: 1,
+    id: "1",
     title: `${siteConfig.name} এ আপনাকে স্বাগতম`,
     subtitle: "ইলম ও আমলের পথে আদর্শ প্রজন্ম গঠন",
     description:
@@ -13,7 +13,7 @@ export const fakeHeroSlides: HeroSlide[] = [
     ctaLink: "/admission",
   },
   {
-    id: 2,
+    id: "2",
     title: "হিফজুল কোরআন বিভাগ",
     subtitle: "কোরআনের হাফেজ তৈরির কারখানা",
     description:
@@ -43,7 +43,7 @@ export const fakeHeroSlides: HeroSlide[] = [
   //   ctaLink: "/admission",
   // },
   {
-    id: 5,
+    id: "3",
     title: "২০২৫-২০২৬ সালের ভর্তি চলছে",
     subtitle: "সীমিত আসন, এখনই আবেদন করুন",
     description:
@@ -53,7 +53,7 @@ export const fakeHeroSlides: HeroSlide[] = [
     ctaLink: "/admission",
   },
   {
-    id: 6,
+    id: "4",
     title: "২০২৫-২০২৬ সালের ভর্তি চলছে",
     subtitle: "সীমিত আসন, এখনই আবেদন করুন",
     description:
@@ -65,17 +65,17 @@ export const fakeHeroSlides: HeroSlide[] = [
 ];
 
 export const fakeStats: Stat[] = [
-  { id: 1, label: "মোট শিক্ষার্থী", value: 100, suffix: "+", icon: "users" },
+  { id: "1", label: "মোট শিক্ষার্থী", value: 100, suffix: "+", icon: "users" },
   {
-    id: 2,
+    id: "2",
     label: "অভিজ্ঞ শিক্ষক",
     value: 5,
     suffix: "জন",
     icon: "graduation-cap",
   },
-  { id: 3, label: "বিভাগ", value: 5, suffix: "টি", icon: "book" },
+  { id: "3", label: "বিভাগ", value: 5, suffix: "টি", icon: "book" },
   {
-    id: 4,
+    id: "4",
     label: "বছরের অভিজ্ঞতা",
     value: 2,
     suffix: "বছর",
@@ -85,22 +85,24 @@ export const fakeStats: Stat[] = [
 
 export const fakeLatestNews: NewsItem[] = [
   {
-    id: 1,
+    id: "1",
     title: "২০২৬-২০২৭ শিক্ষাবর্ষে ভর্তি চলছে",
     excerpt:
       "মাদরাসা দারুল আরকাম আল ইসলামিয়ায় নতুন শিক্ষাবর্ষে ভর্তি আবেদন গ্রহণ শুরু হয়েছে। সকল বিভাগে আসন সীমিত।",
     date: "2026-03-15",
     category: "ভর্তি",
     slug: "admission-notice-2026-2027",
+    createdAt: "2026-03-15T00:00:00Z",
   },
   {
-    id: 2,
+    id: "2",
     title: "ঈদুল ফিতরের ছুটির নোটিশ",
     excerpt:
       "১৩ই মার্চ থেকে নূরানী বিভাগ  এবং ১৭ই মার্চ থেকে নাজেরা ও নূরণী বিভাগ  ২৭ শে মার্চ পর্যন্ত  সকল অফিসিয়াল কার্যক্রম বন্ধ থাকবে। নাজেরা এবং নূরানী বিভাগে বিভাগের শিক্ষার্থীরা অবশ্যই শুক্রবার বিকেলে মাদরাসায় উপস্থিত হবে। ইনশা আল্লহ।",
     date: "2026-03-15",
     category: "",
     slug: "eid-holiday-notice-2026",
+    createdAt: "2026-03-15T00:00:00Z",
   },
   // {
   //   id: 3,

@@ -4,12 +4,13 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHomeStore } from "@/stores/homeStore";
-import { cn } from "@/lib/utils/cn";
+import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/constants/site-config";
 import Image from "next/image";
 
 export function HeroBanner() {
-  const { heroSlides, fetchHomeData } = useHomeStore();
+  const { homeData, fetchHomeData } = useHomeStore();
+  const heroSlides = homeData?.heroSlides || [];
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -84,7 +85,9 @@ export function HeroBanner() {
                 {slide.description}
               </p>
               <Button asChild size="lg" variant="outline">
-                <Link href={slide.ctaLink}>{slide.ctaText}</Link>
+                <Link href={slide.ctaLink || "#"}>
+                  {slide.ctaText || "আরও জানুন"}
+                </Link>
               </Button>
             </div>
           </div>
