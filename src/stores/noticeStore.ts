@@ -1,40 +1,130 @@
 "use client";
 import { create } from "zustand";
-import { Notice } from "@/types/notice";
-import { fakeNotices } from "@/lib/fake-data/notices-data";
-import { fakeDelay } from "@/lib/api/client";
+import { Notice, NoticeQuery } from "@/types/notice";
+import { noticeService } from "@/api/notice/notice.service";
 
 interface NoticeStore {
   notices: Notice[];
+  importantNotices: Notice[];
   selectedNotice: Notice | null;
   isLoading: boolean;
   error: string | null;
-  fetchNotices: () => Promise<void>;
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  } | null;
+  fetchNotices: (query?: NoticeQuery) => Promise<void>;
+  fetchImportantNotices: () => Promise<void>;
   fetchNoticeBySlug: (slug: string) => Promise<void>;
+  createNotice: (data: Partial<Notice>) => Promise<boolean>;
+  updateNotice: (id: string, data: Partial<Notice>) => Promise<boolean>;
+  deleteNotice: (id: string) => Promise<boolean>;
 }
 
-export const useNoticeStore = create<NoticeStore>((set) => ({
+export const useNoticeStore = create<NoticeStore>((set, get) => ({
   notices: [],
+  importantNotices: [],
   selectedNotice: null,
   isLoading: false,
   error: null,
-  fetchNotices: async () => {
+  meta: null,
+
+  fetchNotices: async (query = {}) => {
     set({ isLoading: true, error: null });
     try {
-      await fakeDelay(300);
-      set({ notices: fakeNotices, isLoading: false });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+      const response = await noticeService.getAll(query);
+      set({
+        notices: response.data,
+        meta: response.meta || null,
+        isLoading: false,
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
     }
   },
+
+  fetchImportantNotices: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await noticeService.getImportant();
+      set({
+        importantNotices: response.data,
+        isLoading: false,
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+    }
+  },
+
   fetchNoticeBySlug: async (slug: string) => {
     set({ isLoading: true, error: null });
     try {
-      await fakeDelay(200);
-      const notice = fakeNotices.find((n) => n.slug === slug) || null;
-      set({ selectedNotice: notice, isLoading: false });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+      const response = await noticeService.getBySlug(slug);
+      set({
+        selectedNotice: response.data,
+        isLoading: false,
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "নোটিশ খুঁজে পাওয়া যায়নি।",
+        isLoading: false,
+      });
+    }
+  },
+
+  createNotice: async (data: Partial<Notice>) => {
+    set({ isLoading: true, error: null });
+    try {
+      await noticeService.create(data);
+      await get().fetchNotices();
+      set({ isLoading: false });
+      return true;
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "নোটিশ তৈরি করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  updateNotice: async (id: string, data: Partial<Notice>) => {
+    set({ isLoading: true, error: null });
+    try {
+      await noticeService.update(id, data);
+      await get().fetchNotices();
+      set({ isLoading: false });
+      return true;
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "নোটিশ আপডেট করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  deleteNotice: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await noticeService.delete(id);
+      await get().fetchNotices();
+      set({ isLoading: false });
+      return true;
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "নোটিশ মুছতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+      return false;
     }
   },
 }));

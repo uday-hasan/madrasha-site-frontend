@@ -1,39 +1,60 @@
 "use client";
 import { create } from "zustand";
-import { HeroSlide, Stat, NewsItem } from "@/types/home";
-import { fakeHeroSlides, fakeStats, fakeLatestNews } from "@/lib/fake-data/home-data";
-import { fakeDelay } from "@/lib/api/client";
+import { HomePageData, UpdateHomeDataInput } from "@/types/home";
+import { homeService } from "@/api/home/home.service";
 
 interface HomeStore {
-  heroSlides: HeroSlide[];
-  stats: Stat[];
-  latestNews: NewsItem[];
+  homeData: HomePageData | null;
   isLoading: boolean;
   error: string | null;
   fetchHomeData: () => Promise<void>;
+  updateHomeData: (data: UpdateHomeDataInput) => Promise<boolean>;
 }
 
-export const useHomeStore = create<HomeStore>((set) => ({
-  heroSlides: [],
-  stats: [],
-  latestNews: [],
+export const useHomeStore = create<HomeStore>((set, get) => ({
+  homeData: null,
   isLoading: false,
   error: null,
+
   fetchHomeData: async () => {
-    set({ isLoading: true, error: null });
+    // Return cached data if available
+    const cached = get().homeData;
+    if (cached && !get().isLoading) {
+      // Silently refresh in background
+      set({ isLoading: false });
+    } else {
+      set({ isLoading: true, error: null });
+    }
+
     try {
-      // TODO: Replace with real API call
-      // const response = await apiClient.get(API_ENDPOINTS.HOME_DATA);
-      // set({ heroSlides: response.data.heroSlides, stats: response.data.stats, latestNews: response.data.latestNews });
-      await fakeDelay(300);
+      const response = await homeService.getHomeData();
       set({
-        heroSlides: fakeHeroSlides,
-        stats: fakeStats,
-        latestNews: fakeLatestNews,
+        homeData: response.data,
         isLoading: false,
       });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "হোম পেজ ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+    }
+  },
+
+  updateHomeData: async (data: UpdateHomeDataInput) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await homeService.updateHomeData(data);
+      set({
+        homeData: response.data,
+        isLoading: false,
+      });
+      return true;
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "হোম পেজ আপডেট করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
+      return false;
     }
   },
 }));
