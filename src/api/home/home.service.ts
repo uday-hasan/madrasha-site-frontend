@@ -11,6 +11,16 @@ export const homeService = {
   // Get home page data
   getHomeData: () => fetcher<ApiResponse<HomePageData>>("/home"),
 
+  // Upload hero slide image (Admin only)
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    return fetcher<ApiResponse<{ imageUrl: string }>>("/home/upload", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
   // Update home page data (Admin only)
   updateHomeData: (data: UpdateHomeDataInput) =>
     fetcher<ApiResponse<HomePageData>>("/home", {

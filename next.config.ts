@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Disable Turbopack to avoid panic errors
+  turbopack: false,
 };
 
 export default nextConfig;

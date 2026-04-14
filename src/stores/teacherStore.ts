@@ -1,8 +1,6 @@
 "use client";
 import { create } from "zustand";
-import { Teacher } from "@/types/teacher";
-import { fakeTeachers } from "@/lib/fake-data/teachers-data";
-import { fakeDelay } from "@/lib/api/client";
+import { teacherService, Teacher } from "@/api/teacher/teacher.service";
 
 interface TeacherStore {
   teachers: Teacher[];
@@ -10,7 +8,7 @@ interface TeacherStore {
   isLoading: boolean;
   error: string | null;
   fetchTeachers: () => Promise<void>;
-  fetchTeacherById: (id: number) => Promise<void>;
+  fetchTeacherById: (id: string) => Promise<void>;
 }
 
 export const useTeacherStore = create<TeacherStore>((set) => ({
@@ -21,20 +19,27 @@ export const useTeacherStore = create<TeacherStore>((set) => ({
   fetchTeachers: async () => {
     set({ isLoading: true, error: null });
     try {
-      await fakeDelay(300);
-      set({ teachers: fakeTeachers, isLoading: false });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+      const response = await teacherService.getAllActive();
+      set({ teachers: response.data || [], isLoading: false });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
     }
   },
-  fetchTeacherById: async (id: number) => {
+  fetchTeacherById: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await fakeDelay(200);
-      const teacher = fakeTeachers.find((t) => t.id === id) || null;
-      set({ selectedTeacher: teacher, isLoading: false });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+      const response = await teacherService.getById(id);
+      set({ selectedTeacher: response.data, isLoading: false });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
     }
   },
 }));

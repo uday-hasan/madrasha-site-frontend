@@ -1,17 +1,24 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { GoogleTranslate } from "./GoogleTranslate";
 import { MobileMenu } from "./MobileMenu";
 import { navItems } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site-config";
-import { cn } from "@/lib/utils/cn";
+import { cn } from "@/lib/utils";
+import { useDepartmentStore } from "@/stores/departmentStore";
 import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
+  const { activeDepartments, fetchActiveDepartments } = useDepartmentStore();
+
+  useEffect(() => {
+    fetchActiveDepartments();
+  }, [fetchActiveDepartments]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -40,49 +47,60 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
-              <div key={item.href} className="relative group">
-                {item.children ? (
-                  <>
-                    <button
+            {navItems.map((item) => {
+              // Use dynamic departments for departments dropdown
+              const isDepartments = item.href === "/departments";
+              const children = isDepartments
+                ? activeDepartments.map((dept) => ({
+                    label: dept.name,
+                    href: `/departments/${dept.slug}`,
+                  }))
+                : item.children;
+
+              return (
+                <div key={item.href} className="relative group">
+                  {children && children.length > 0 ? (
+                    <>
+                      <button
+                        className={cn(
+                          "flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent",
+                          pathname.startsWith(item.href) &&
+                            item.href !== "/" &&
+                            "text-primary font-medium",
+                        )}
+                      >
+                        {item.label}
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      <div className="absolute top-full left-0 mt-1 w-56 bg-popover border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 max-h-80 overflow-y-auto">
+                        {children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className="block px-4 py-2 text-sm hover:bg-accent transition-colors"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
                       className={cn(
-                        "flex items-center gap-1 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent",
-                        pathname.startsWith(item.href) &&
-                          item.href !== "/" &&
-                          "text-primary font-medium",
+                        "px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent block",
+                        (pathname === item.href ||
+                          (item.href !== "/" &&
+                            pathname.startsWith(item.href))) &&
+                          "text-primary font-medium bg-accent",
                       )}
                     >
                       {item.label}
-                      <ChevronDown className="h-3 w-3" />
-                    </button>
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-popover border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="block px-4 py-2 text-sm hover:bg-accent transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent block",
-                      (pathname === item.href ||
-                        (item.href !== "/" &&
-                          pathname.startsWith(item.href))) &&
-                        "text-primary font-medium bg-accent",
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </div>
-            ))}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           {/* Right side */}

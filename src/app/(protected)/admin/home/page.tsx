@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import {
   Loader2,
@@ -15,11 +15,14 @@ import {
   ChevronUp,
   ChevronDown,
   GripVertical,
+  Upload,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 
 import { useHomeStore } from "@/stores/homeStore";
 import { HeroSlide, Stat, UpdateHomeDataInput } from "@/types/home";
+import { homeService } from "@/api/home/home.service";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,8 +46,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ImageUploader } from "@/components/shared/ImageUploader";
 
 const ASSET_URL = process.env.NEXT_PUBLIC_ASSET_URL || "http://localhost:5000";
+
+// Helper to get full image URL
+const getImageUrl = (imageUrl: string | undefined): string => {
+  if (!imageUrl) return "";
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${ASSET_URL}${imageUrl}`;
+};
 
 export default function HomeAdminPage() {
   const { homeData, isLoading, fetchHomeData, updateHomeData } = useHomeStore();
@@ -228,6 +239,8 @@ export default function HomeAdminPage() {
       </div>
     );
   }
+
+  console.log(`${ASSET_URL}${homeData?.heroSlides[1]?.imageUrl}`);
 
   return (
     <div className="space-y-6">
@@ -586,18 +599,53 @@ export default function HomeAdminPage() {
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>ছবি URL *</Label>
-                <Input
-                  value={editingSlide.imageUrl}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setEditingSlide({
-                      ...editingSlide,
-                      imageUrl: e.target.value,
-                    })
+              <div className="space-y-4">
+                <Label>ছবি *</Label>
+
+                {/* Image Preview */}
+                {editingSlide.imageUrl && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                    <Image
+                      src={editingSlide.imageUrl}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      onClick={() =>
+                        setEditingSlide({ ...editingSlide, imageUrl: "" })
+                      }
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* File Upload */}
+                <ImageUploader
+                  onUpload={(url) =>
+                    setEditingSlide({ ...editingSlide, imageUrl: url })
                   }
-                  placeholder="https://example.com/image.jpg"
+                  currentUrl={editingSlide.imageUrl}
                 />
+
+                {/* Or URL Input */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">
+                    অথবা URL দিন
+                  </Label>
+                  <Input
+                    value={editingSlide.imageUrl}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setEditingSlide({
+                        ...editingSlide,
+                        imageUrl: e.target.value,
+                      })
+                    }
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

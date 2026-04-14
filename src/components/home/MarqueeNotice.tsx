@@ -8,12 +8,12 @@ export function MarqueeNotice() {
   const { notices, fetchNotices } = useNoticeStore();
 
   useEffect(() => {
-    fetchNotices();
+    fetchNotices({ featured: true, isActive: true });
   }, [fetchNotices]);
 
-  const importantNotices = notices.filter((n) => n.isImportant);
+  const featuredNotices = notices.filter((n) => n.featured);
 
-  if (importantNotices.length === 0) return null;
+  if (featuredNotices.length === 0) return null;
 
   return (
     <div className="bg-primary text-primary-foreground py-2 overflow-hidden">
@@ -27,12 +27,12 @@ export function MarqueeNotice() {
             className="text-sm whitespace-nowrap"
             style={{ animation: "marquee 20s linear infinite" }}
           >
-            {importantNotices.map((n, i) => (
+            {featuredNotices.map((n, i) => (
               <span key={n.id}>
                 <Link href={`/notices/${n.slug}`} className="hover:underline">
                   {n.title}
                 </Link>
-                {i < importantNotices.length - 1 && " *** "}
+                {i < featuredNotices.length - 1 && " *** "}
               </span>
             ))}
           </div>
@@ -40,8 +40,12 @@ export function MarqueeNotice() {
       </div>
       <style jsx>{`
         @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
         }
       `}</style>
     </div>

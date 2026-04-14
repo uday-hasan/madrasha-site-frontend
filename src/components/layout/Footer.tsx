@@ -1,12 +1,30 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import { siteConfig } from "@/lib/constants/site-config";
 import { navItems } from "@/lib/constants/navigation";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Phone, Mail, Clock, Facebook, Youtube } from "lucide-react";
 import Image from "next/image";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { getSettingsByCategory, fetchSettingsByCategory } = useSettingsStore();
+
+  useEffect(() => {
+    fetchSettingsByCategory("contact");
+  }, [fetchSettingsByCategory]);
+
+  const contactSettings = getSettingsByCategory("contact");
+
+  // Get dynamic contact info or fall back to siteConfig
+  const contactPhone = contactSettings.contact_phone || siteConfig.phone[0];
+  const contactEmail = contactSettings.contact_email || siteConfig.email[0];
+  const contactAddress =
+    contactSettings.contact_address ||
+    `${siteConfig.address}, ${siteConfig.city}`;
 
   return (
     <footer className="bg-card border-t mt-auto">
@@ -48,28 +66,16 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <span>
-                  {siteConfig.address}, {siteConfig.city}
-                </span>
+                <span>{contactAddress}</span>
               </li>
-              {siteConfig.phone.map((phone) => (
-                <li
-                  key={phone}
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                >
-                  <Phone className="h-4 w-4 text-primary shrink-0" />
-                  <span dir="ltr">{phone}</span>
-                </li>
-              ))}
-              {siteConfig.email.slice(0, 1).map((email) => (
-                <li
-                  key={email}
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                >
-                  <Mail className="h-4 w-4 text-primary shrink-0" />
-                  <span>{email}</span>
-                </li>
-              ))}
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 text-primary shrink-0" />
+                <span dir="ltr">{contactPhone}</span>
+              </li>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 text-primary shrink-0" />
+                <span>{contactEmail}</span>
+              </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                 <span>{siteConfig.officeHours}</span>
@@ -82,18 +88,25 @@ export function Footer() {
                   height={20}
                   className="h-4 w-4 mt-0.5 text-primary shrink-0"
                 />
-
-                <span>{siteConfig.phone[1]}</span>
+                <span>{contactPhone}</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Facebook className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <a href={siteConfig.socialLinks.facebook} target="_blank">
+                <a
+                  href={siteConfig.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Facebook
                 </a>
               </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Youtube className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <a href={siteConfig.socialLinks.youtube} target="_blank">
+                <a
+                  href={siteConfig.socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Youtube
                 </a>
               </li>

@@ -1,8 +1,9 @@
 "use client";
+import { useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { fakeAboutContent, fakeAchievements } from "@/lib/fake-data/about-data";
+import { fakeAchievements } from "@/lib/fake-data/about-data";
 import { leadership } from "@/lib/fake-data/teachers-data";
 import { siteConfig } from "@/lib/constants/site-config";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,8 +12,41 @@ import { foundationServices } from "@/lib/fake-data/service-data";
 import { CheckCircle, Shield, Building2, Hammer, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { useSettingsStore } from "@/stores/settingsStore";
+
 export default function AboutPage() {
-  const about = fakeAboutContent;
+  const { getSettingsByCategory, fetchSettingsByCategory } = useSettingsStore();
+
+  useEffect(() => {
+    fetchSettingsByCategory("about");
+  }, [fetchSettingsByCategory]);
+
+  const aboutSettings = getSettingsByCategory("about");
+
+  const about = {
+    title: aboutSettings.about_title || "আমাদের সম্পর্কে",
+    subtitle:
+      aboutSettings.about_description || "মাদরাসা দারুল আরকাম আল ইসলামিয়া",
+    history:
+      aboutSettings.about_description ||
+      "মাদরাসা দারুল আরকাম আল ইসলামিয়া ২০২৪ সাল থেকে ইসলামী শিক্ষার আলো ছড়িয়ে দিচ্ছে।",
+    mission:
+      aboutSettings.about_mission || "কুরআন ও সুন্নাহর আলোকে প্রজন্ম গঠন",
+    vision:
+      aboutSettings.about_vision ||
+      "ইলম ও আমলের সমন্বয়ে আদর্শ মুসলিম সমাজ বিনির্মাণ",
+    founderName: aboutSettings.about_founder || "মাওলানা আব্দুল্লাহ আল মামুন",
+    founderMessage: "আমাদের লক্ষ্য সন্তানদের সঠিক ইসলামী শিক্ষায় শিক্ষিত করা।",
+    request: "আপনাদের সহযোগিতা ও দোয়া কামনা করছি।",
+    values: [
+      { title: "ইলম", content: "জ্ঞান অর্জন ও বিতরণ" },
+      { title: "আমল", content: "জ্ঞানের প্রয়োগ" },
+      { title: "আখলাক", content: "নৈতিক চারিত্র্য" },
+      { title: "তাহাজ্জুদ", content: "রাতের ইবাদত" },
+      { title: "দাওয়াত", content: "ইসলামের প্রচার" },
+    ],
+  };
+
   const leadershipMembers = [
     leadership.chairman,
     leadership.viceChairman,

@@ -1,35 +1,64 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { fakeNotices } from "@/lib/fake-data/notices-data";
+import { useNoticeStore } from "@/stores/noticeStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatBanglaDate } from "@/lib/utils/helpers";
 import { Calendar, ArrowLeft, AlertCircle } from "lucide-react";
 
-interface Props {
-  params: Promise<{ slug: string }>;
-}
+export default function NoticeDetailPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const { selectedNotice, isLoading, error, fetchNoticeBySlug } =
+    useNoticeStore();
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const notice = fakeNotices.find((n) => n.slug === slug);
-  if (!notice) return { title: "নোটিশ পাওয়া যায়নি" };
-  return {
-    title: notice.title,
-    description: notice.content.slice(0, 155),
-  };
-}
+  useEffect(() => {
+    if (slug) {
+      fetchNoticeBySlug(slug);
+    }
+  }, [slug, fetchNoticeBySlug]);
 
-export async function generateStaticParams() {
-  return fakeNotices.map((notice) => ({ slug: notice.slug }));
-}
+  if (isLoading) {
+    return (
+      <>
+        <PageHeader title="নোটিশ বোর্ড" />
+        <section className="py-16">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <Skeleton className="h-10 w-32 mb-6" />
+            <div className="bg-card rounded-xl border p-8">
+              <Skeleton className="h-4 w-48 mb-4" />
+              <Skeleton className="h-8 w-3/4 mb-6" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
 
-export default async function NoticeDetailPage({ params }: Props) {
-  const { slug } = await params;
-  const notice = fakeNotices.find((n) => n.slug === slug);
-  if (!notice) notFound();
+  if (error || !selectedNotice) {
+    return (
+      <>
+        <PageHeader title="নোটিশ বোর্ড" />
+        <section className="py-16">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-muted-foreground">
+              {error || "আপনি যে নোটিশটি খুঁজছেন তা পাওয়া যায়নি।"}
+            </p>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  const notice = selectedNotice;
 
   return (
     <>
@@ -55,7 +84,7 @@ export default async function NoticeDetailPage({ params }: Props) {
               <Badge variant="secondary">{notice.category}</Badge>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                {formatBanglaDate(notice.date || new Date().toISOString())}
+                {formatBanglaDate(notice.createdAt || new Date().toISOString())}
               </div>
             </div>
 
