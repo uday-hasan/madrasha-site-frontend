@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/shared/SectionTitle";
-import { useGalleryStore } from "@/stores/galleryStore";
+import { useHomeStore } from "@/stores/homeStore";
 import { ImageIcon, PlayCircle, X } from "lucide-react";
 import Image from "next/image";
 import {
@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { GalleryItem as GalleryImage } from "@/types/gallery";
+import { GalleryPreviewItem } from "@/types/home";
 
 // Extracts YouTube video ID from any YouTube URL format
 function getYouTubeId(url: string): string | null {
@@ -83,14 +83,16 @@ function LocalVideoThumbnail({
 }
 
 export function GalleryPreview() {
-  const { images, fetchGallery } = useGalleryStore();
-  const [selectedItem, setSelectedItem] = useState<GalleryImage | null>(null);
+  const { latestGallery, fetchHomeData } = useHomeStore();
+  const [selectedItem, setSelectedItem] = useState<GalleryPreviewItem | null>(
+    null,
+  );
 
   useEffect(() => {
-    fetchGallery();
-  }, [fetchGallery]);
+    fetchHomeData();
+  }, [fetchHomeData]);
 
-  const previewImages = images.slice(0, 3);
+  const previewImages = latestGallery || [];
 
   return (
     <section className="py-16 bg-muted/30">
@@ -120,6 +122,7 @@ export function GalleryPreview() {
                       alt={item.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      unoptimized={item.imageUrl.startsWith("http")}
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
                       <div>
@@ -130,7 +133,7 @@ export function GalleryPreview() {
                       </div>
                     </div>
                   </>
-                ) : item.mediaType === "IMAGE" && item.videoUrl ? (
+                ) : item.mediaType === "VIDEO" && item.videoUrl ? (
                   <>
                     {/* Thumbnail: YouTube or local canvas */}
                     {ytId ? (
@@ -216,6 +219,7 @@ export function GalleryPreview() {
                 alt={selectedItem.title}
                 fill
                 className="object-contain"
+                unoptimized={selectedItem.imageUrl.startsWith("http")}
               />
             ) : selectedItem?.mediaType === "VIDEO" && selectedItem.videoUrl ? (
               (() => {

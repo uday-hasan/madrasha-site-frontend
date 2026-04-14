@@ -6,10 +6,19 @@ const nextConfig: NextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "5000", // change if your backend runs on a different port
+        port: "5000",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
+    unoptimized: process.env.NODE_ENV === "development",
   },
   // Disable Turbopack to avoid panic errors
   turbopack: false,

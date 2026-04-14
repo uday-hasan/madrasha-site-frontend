@@ -43,56 +43,59 @@ export function HeroBanner() {
 
   return (
     <div className="relative w-full overflow-hidden">
-      {/* Image-only slides */}
-      <div className="relative">
+      {/* Image and content container */}
+      <div className="relative min-h-96 md:min-h-125">
+        {/* Background images */}
         {heroSlides.map((s, idx) =>
           s.imageUrl ? (
-            <div
-              key={s.id}
+            <Image
+              key={`bg-${s.id}`}
+              src={s.imageUrl}
+              alt={s.title}
+              fill
               className={cn(
-                "transition-opacity duration-1000",
-                idx === currentSlide
-                  ? "opacity-100"
-                  : "opacity-0 absolute inset-0",
+                "w-full h-full object-cover transition-opacity duration-1000",
+                idx === currentSlide ? "opacity-100" : "opacity-0",
               )}
-            >
-              <Image
-                src={s.imageUrl}
-                alt={s.title}
-                width={1920}
-                height={480}
-                className="w-full h-auto"
-                priority={idx === 0}
-              />
-            </div>
+              priority={idx === 0}
+              unoptimized={s.imageUrl.startsWith("http")}
+            />
           ) : null,
         )}
-      </div>
 
-      {/* Fallback text content (shown only when current slide has no image) */}
-      {!hasImage && (
-        <div className="min-h-125 md:min-h-150 bg-linear-to-br from-primary/90 to-primary/70 flex items-center">
-          <div className="absolute inset-0 bg-[url('/images/mosque-pattern.svg')] opacity-10" />
-          <div className="container mx-auto px-4 py-16 relative z-10">
-            <div className="max-w-2xl text-primary-foreground">
-              <p className="text-lg font-medium mb-2 opacity-90">
-                {slide.subtitle}
-              </p>
-              <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-                {slide.title}
-              </h1>
-              <p className="text-base md:text-lg opacity-90 mb-8 leading-relaxed">
-                {slide.description}
-              </p>
-              <Button asChild size="lg" variant="outline">
-                <Link href={slide.ctaLink || "#"}>
-                  {slide.ctaText || "আরও জানুন"}
-                </Link>
-              </Button>
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/30 z-10" />
+
+        {/* Text content overlay */}
+        {slide && (
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="container mx-auto px-4 py-16">
+              <div className="max-w-2xl text-primary-foreground">
+                {slide.subtitle && (
+                  <p className="text-lg font-medium mb-2 opacity-90">
+                    {slide.subtitle}
+                  </p>
+                )}
+                {slide.title && (
+                  <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                    {slide.title}
+                  </h1>
+                )}
+                {slide.description && (
+                  <p className="text-base md:text-lg opacity-90 mb-8 leading-relaxed">
+                    {slide.description}
+                  </p>
+                )}
+                {slide.ctaText && (
+                  <Button asChild size="lg" variant="outline">
+                    <Link href={slide.ctaLink || "#"}>{slide.ctaText}</Link>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Navigation arrows */}
       {heroSlides.length > 1 && (

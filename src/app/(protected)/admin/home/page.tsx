@@ -46,7 +46,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ImageUploader } from "@/components/shared/ImageUploader";
 
 const ASSET_URL = process.env.NEXT_PUBLIC_ASSET_URL || "http://localhost:5000";
 
@@ -68,6 +67,8 @@ export default function HomeAdminPage() {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isSlideDialogOpen, setIsSlideDialogOpen] = useState(false);
   const [deleteSlideIndex, setDeleteSlideIndex] = useState<number | null>(null);
+  const [selectedSlideFile, setSelectedSlideFile] = useState<File | null>(null);
+  const [isUploadingSlide, setIsUploadingSlide] = useState(false);
 
   // Stats State
   const [stats, setStats] = useState<Stat[]>([]);
@@ -129,33 +130,52 @@ export default function HomeAdminPage() {
       ctaText: "",
       ctaLink: "",
     });
+    setSelectedSlideFile(null);
     setIsSlideDialogOpen(true);
   };
 
   const handleEditSlide = (slide: HeroSlide) => {
     setEditingSlide(slide);
+    setSelectedSlideFile(null);
     setIsSlideDialogOpen(true);
   };
 
-  const handleSaveSlide = () => {
+  const handleSaveSlide = async () => {
     if (!editingSlide?.title || !editingSlide?.imageUrl) {
       toast.error("শিরোনাম ও ছবি URL আবশ্যক");
       return;
+    }
+
+    // If a new file is selected, upload it first
+    let finalImageUrl = editingSlide.imageUrl;
+    if (selectedSlideFile) {
+      setIsUploadingSlide(true);
+      try {
+        const response = await homeService.uploadImage(selectedSlideFile);
+        finalImageUrl = response.data.imageUrl;
+      } catch (error) {
+        toast.error("ছবি আপলোড করতে সমস্যা হয়েছে");
+        setIsUploadingSlide(false);
+        return;
+      }
+      setIsUploadingSlide(false);
     }
 
     setHeroSlides((prev) => {
       const existingIndex = prev.findIndex((s) => s.id === editingSlide.id);
       if (existingIndex >= 0) {
         const updated = [...prev];
-        updated[existingIndex] = editingSlide;
+        updated[existingIndex] = { ...editingSlide, imageUrl: finalImageUrl };
         return updated;
       }
-      return [...prev, editingSlide];
+      return [...prev, { ...editingSlide, imageUrl: finalImageUrl }];
     });
 
     setIsSlideDialogOpen(false);
     setEditingSlide(null);
+    setSelectedSlideFile(null);
     setHasChanges(true);
+    toast.success("স্লাইড সফলভাবে যোগ করা হয়েছে");
   };
 
   const handleDeleteSlide = () => {
@@ -610,11 +630,13 @@ export default function HomeAdminPage() {
                       alt="Preview"
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                     <button
-                      onClick={() =>
-                        setEditingSlide({ ...editingSlide, imageUrl: "" })
-                      }
+                      onClick={() => {
+                        setEditingSlide({ ...editingSlide, imageUrl: "" });
+                        setSelectedSlideFile(null);
+                      }}
                       className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                     >
                       <X className="h-4 w-4" />
@@ -622,18 +644,53 @@ export default function HomeAdminPage() {
                   </div>
                 )}
 
-                {/* File Upload */}
-                <ImageUploader
-                  onUpload={(url) =>
-                    setEditingSlide({ ...editingSlide, imageUrl: url })
-                  }
-                  currentUrl={editingSlide.imageUrl}
+                {/* Simple File Input - No Auto Upload */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    // Validate file type
+                    if (!file.type.startsWith("image/")) {
+                      toast.error("শুধুমাত্র ছবি ফাইল গ্রহণযোগ্য");
+                      return;
+                    }
+
+                    // Validate file size (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast.error("ছবির সাইজ ৫ মেগাবাইটের চেয়ে কম হওয়া উচিত");
+                      return;
+                    }
+
+                    setSelectedSlideFile(file);
+
+                    // Show local preview
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      setEditingSlide({
+                        ...editingSlide,
+                        imageUrl: event.target?.result as string,
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  className="block w-full text-sm text-muted-foreground
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary file:text-primary-foreground
+                    hover:file:bg-primary/90"
                 />
+                <p className="text-xs text-muted-foreground">
+                  PNG, JPG, GIF - সর্বোচ্চ ৫ MB (আপলোড হবে সংরক্ষণের সময়)
+                </p>
 
                 {/* Or URL Input */}
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">
-                    অথবা URL দিন
+                    অথবা সরাসরি URL দিন
                   </Label>
                   <Input
                     value={editingSlide.imageUrl}
@@ -673,8 +730,19 @@ export default function HomeAdminPage() {
                   />
                 </div>
               </div>
-              <Button onClick={handleSaveSlide} className="w-full">
-                সংরক্ষণ করুন
+              <Button
+                onClick={handleSaveSlide}
+                className="w-full"
+                disabled={isUploadingSlide || isLoading}
+              >
+                {isUploadingSlide ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ছবি আপলোড করছে...
+                  </>
+                ) : (
+                  "সংরক্ষণ করুন"
+                )}
               </Button>
             </div>
           )}
