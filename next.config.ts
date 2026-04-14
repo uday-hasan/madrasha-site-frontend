@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: process.env.NODE_ENV === "development",
   },
-  // Disable Turbopack to avoid panic errors
-  turbopack: false,
 };
 
 export default nextConfig;

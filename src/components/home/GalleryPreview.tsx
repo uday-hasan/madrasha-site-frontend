@@ -83,7 +83,7 @@ function LocalVideoThumbnail({
 }
 
 export function GalleryPreview() {
-  const { latestGallery, fetchHomeData } = useHomeStore();
+  const { homeData, fetchHomeData } = useHomeStore();
   const [selectedItem, setSelectedItem] = useState<GalleryPreviewItem | null>(
     null,
   );
@@ -92,7 +92,7 @@ export function GalleryPreview() {
     fetchHomeData();
   }, [fetchHomeData]);
 
-  const previewImages = latestGallery || [];
+  const previewImages = homeData?.latestGallery || [];
 
   return (
     <section className="py-16 bg-muted/30">
