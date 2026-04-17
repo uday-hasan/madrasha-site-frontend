@@ -5,18 +5,11 @@ import { SectionTitle } from "@/components/shared/SectionTitle";
 import { useGalleryStore } from "@/stores/galleryStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ImageIcon, PlayCircle, X, Loader2 } from "lucide-react";
+import { ImageIcon, PlayCircle, Loader2 } from "lucide-react";
 import { formatBanglaDate } from "@/lib/utils/helpers";
 import Image from "next/image";
 import { GalleryItem } from "@/types/gallery";
-// import { ASSET_URL } from "@/config/env";
-import {
-  Dialog,
-  DialogContent,
-  // DialogHeader,
-  // DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export default function GalleryPage() {
   const { images, activeCategory, fetchGallery, setActiveCategory, isLoading } =
@@ -30,14 +23,16 @@ export default function GalleryPage() {
 
   // Extract unique categories from backend data
   const categories = useMemo(() => {
-    const uniqueCats = Array.from(new Set(images.map((img) => img.category)));
+    const uniqueCats = Array.from(
+      new Set(images.map((img) => img.category || "General")),
+    );
     return ["all", ...uniqueCats];
   }, [images]);
 
   const filteredImages = useMemo(() => {
     return activeCategory === "all"
       ? images
-      : images.filter((img) => img.category === activeCategory);
+      : images.filter((img) => (img.category || "General") === activeCategory);
   }, [activeCategory, images]);
 
   return (
@@ -81,7 +76,7 @@ export default function GalleryPage() {
                     {item.imageUrl ? (
                       <>
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_ASSET_URL}${item.imageUrl}`}
+                          src={item.imageUrl} // ব্যাকএন্ড থেকে সরাসরি ফুল URL আসছে
                           alt={item.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -95,7 +90,6 @@ export default function GalleryPage() {
                       </div>
                     )}
 
-                    {/* Media type badge */}
                     <div className="absolute top-2 right-2">
                       <Badge
                         variant={
@@ -114,10 +108,9 @@ export default function GalleryPage() {
                         variant="outline"
                         className="text-[10px] capitalize"
                       >
-                        {item.category}
+                        {item.category || "General"}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground">
-                        {/* Note: backend uses createdAt */}
                         {formatBanglaDate(item.createdAt)}
                       </span>
                     </div>
@@ -144,19 +137,12 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* Media Preview Dialog (Using Dialog for better responsiveness) */}
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-none">
-          <div className="absolute top-4 right-4 z-50">
-            {/* <DialogClose className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
-              <X className="h-5 w-5" />
-            </DialogClose> */}
-          </div>
-
           <div className="relative w-full aspect-video flex items-center justify-center">
             {selectedItem?.mediaType === "IMAGE" && selectedItem.imageUrl ? (
               <Image
-                src={`${process.env.NEXT_PUBLIC_ASSET_URL}${selectedItem.imageUrl}`}
+                src={selectedItem.imageUrl}
                 alt={selectedItem.title}
                 fill
                 className="object-contain"
@@ -166,7 +152,9 @@ export default function GalleryPage() {
               selectedItem.videoUrl?.includes("youtube.com") ||
               selectedItem.videoUrl?.includes("youtu.be") ? (
                 <iframe
-                  src={selectedItem.videoUrl.replace("watch?v=", "embed/")}
+                  src={selectedItem.videoUrl
+                    .replace("watch?v=", "embed/")
+                    .replace("youtu.be/", "youtube.com/embed/")}
                   title={selectedItem.title}
                   className="w-full h-full"
                   allowFullScreen
@@ -174,11 +162,7 @@ export default function GalleryPage() {
                 />
               ) : (
                 <video
-                  src={
-                    selectedItem.videoUrl?.startsWith("http")
-                      ? selectedItem.videoUrl
-                      : `${process.env.NEXT_PUBLIC_ASSET_URL}${selectedItem.videoUrl}`
-                  }
+                  src={selectedItem.videoUrl || ""}
                   controls
                   autoPlay
                   className="w-full h-full"
@@ -194,7 +178,9 @@ export default function GalleryPage() {
                   {selectedItem?.title}
                 </h2>
                 <div className="flex gap-2 mt-2">
-                  <Badge variant="secondary">{selectedItem?.category}</Badge>
+                  <Badge variant="secondary">
+                    {selectedItem?.category || "General"}
+                  </Badge>
                   <span className="text-sm text-muted-foreground">
                     {selectedItem && formatBanglaDate(selectedItem.createdAt)}
                   </span>
