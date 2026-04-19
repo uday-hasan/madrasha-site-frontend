@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Textarea } from "@/components/ui/input"; // Assuming you have these
+import { Input } from "@/components/ui/input"; // Assuming you have these
 import { Upload, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -45,7 +45,7 @@ export const HeroSlideModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border-white/10 text-white max-w-lg">
+      <DialogContent className=" border-white/10 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle>স্লাইড তথ্য</DialogTitle>
         </DialogHeader>
@@ -55,22 +55,22 @@ export const HeroSlideModal = ({
             defaultValue={initialData?.title}
             placeholder="শিরোনাম"
             required
-            className="bg-slate-800"
+            className=""
           />
           <Input
             name="subtitle"
             defaultValue={initialData?.subtitle}
             placeholder="সাবটাইটেল"
-            className="bg-slate-800"
+            className=""
           />
           <textarea
             name="description"
             defaultValue={initialData?.description}
             placeholder="বিবরণ"
-            className="w-full bg-slate-800 rounded-md p-2 text-sm h-20"
+            className="w-full  rounded-md p-2 text-sm h-20"
           />
 
-          <div className="relative aspect-video bg-slate-800 rounded-xl overflow-hidden border border-white/10">
+          <div className="relative aspect-video  rounded-xl overflow-hidden border border-white/10">
             {previewUrl ? (
               <>
                 <Image
@@ -114,13 +114,13 @@ export const HeroSlideModal = ({
               name="ctaText"
               defaultValue={initialData?.ctaText}
               placeholder="বাটন টেক্সট"
-              className="bg-slate-800"
+              className=""
             />
             <Input
               name="ctaLink"
               defaultValue={initialData?.ctaLink}
               placeholder="বাটন লিংক"
-              className="bg-slate-800"
+              className=""
             />
           </div>
 

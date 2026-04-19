@@ -31,11 +31,6 @@ export interface NewsItem {
 export interface HomePageData {
   heroSlides: HeroSlide[];
   stats: Stat[];
-  bannerImage?: string;
-  marqueeText?: string;
-  aboutSummary?: string;
-  featuredNoticesLimit: number;
-  galleryPreviewLimit: number;
   featuredNotices: NewsItem[];
   latestGallery: GalleryPreviewItem[];
   activeDepartments: DepartmentPreview[];
@@ -64,9 +59,4 @@ export interface DepartmentPreview {
 export interface UpdateHomeDataInput {
   heroSlides?: HeroSlide[];
   stats?: Stat[];
-  bannerImage?: string;
-  marqueeText?: string;
-  aboutSummary?: string;
-  featuredNoticesLimit?: number;
-  galleryPreviewLimit?: number;
 }

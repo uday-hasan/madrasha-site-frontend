@@ -1,27 +1,24 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   Loader2,
   Plus,
   Trash2,
   Edit,
-  Save,
   Image as ImageIcon,
-  Type,
   BarChart3,
   Layout,
   ChevronUp,
   ChevronDown,
-  GripVertical,
   Upload,
-  X,
+  Link as LinkIcon,
 } from "lucide-react";
 import Image from "next/image";
 
 import { useHomeStore } from "@/stores/homeStore";
-import { HeroSlide, Stat, UpdateHomeDataInput } from "@/types/home";
+import { HeroSlide, Stat } from "@/types/home";
 import { homeService } from "@/api/home/home.service";
 
 import { Button } from "@/components/ui/button";
@@ -49,7 +46,6 @@ import {
 
 const ASSET_URL = process.env.NEXT_PUBLIC_ASSET_URL || "http://localhost:5000";
 
-// Helper to get full image URL
 const getImageUrl = (imageUrl: string | undefined): string => {
   if (!imageUrl) return "";
   if (imageUrl.startsWith("http")) return imageUrl;
@@ -57,70 +53,63 @@ const getImageUrl = (imageUrl: string | undefined): string => {
 };
 
 export default function HomeAdminPage() {
-  const { homeData, isLoading, fetchHomeData, updateHomeData } = useHomeStore();
+  const {
+    heroSlides,
+    stats,
+    isSlidesLoading,
+    isStatsLoading,
+    fetchSlides,
+    fetchStats,
+  } = useHomeStore();
 
   const [activeTab, setActiveTab] = useState("hero");
-  const [hasChanges, setHasChanges] = useState(false);
 
   // Hero Slides State
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [displayedSlides, setDisplayedSlides] = useState<HeroSlide[]>([]);
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isSlideDialogOpen, setIsSlideDialogOpen] = useState(false);
   const [deleteSlideIndex, setDeleteSlideIndex] = useState<number | null>(null);
+  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">("url");
   const [selectedSlideFile, setSelectedSlideFile] = useState<File | null>(null);
-  const [isUploadingSlide, setIsUploadingSlide] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
+  const [isSavingSlide, setIsSavingSlide] = useState(false);
 
   // Stats State
-  const [stats, setStats] = useState<Stat[]>([]);
+  const [displayedStats, setDisplayedStats] = useState<Stat[]>([]);
   const [editingStat, setEditingStat] = useState<Stat | null>(null);
   const [isStatDialogOpen, setIsStatDialogOpen] = useState(false);
   const [deleteStatIndex, setDeleteStatIndex] = useState<number | null>(null);
+  const [isSavingStat, setIsSavingStat] = useState(false);
 
-  // Content State
-  const [bannerImage, setBannerImage] = useState("");
-  const [marqueeText, setMarqueeText] = useState("");
-  const [aboutSummary, setAboutSummary] = useState("");
-  const [featuredNoticesLimit, setFeaturedNoticesLimit] = useState(3);
-  const [galleryPreviewLimit, setGalleryPreviewLimit] = useState(3);
-
-  // Load data
+  // Load data on mount
   useEffect(() => {
-    fetchHomeData();
-  }, [fetchHomeData]);
-
-  // Sync with store data
-  useEffect(() => {
-    if (homeData) {
-      setHeroSlides(homeData.heroSlides || []);
-      setStats(homeData.stats || []);
-      setBannerImage(homeData.bannerImage || "");
-      setMarqueeText(homeData.marqueeText || "");
-      setAboutSummary(homeData.aboutSummary || "");
-      setFeaturedNoticesLimit(homeData.featuredNoticesLimit || 3);
-      setGalleryPreviewLimit(homeData.galleryPreviewLimit || 3);
-    }
-  }, [homeData]);
-
-  const handleSave = async () => {
-    const data: UpdateHomeDataInput = {
-      heroSlides,
-      stats,
-      bannerImage,
-      marqueeText,
-      aboutSummary,
-      featuredNoticesLimit,
-      galleryPreviewLimit,
+    const loadData = async () => {
+      await fetchSlides();
+      await fetchStats();
     };
+    loadData();
+  }, [fetchSlides, fetchStats]);
 
-    const success = await updateHomeData(data);
-    if (success) {
-      toast.success("হোম পেজ সফলভাবে আপডেট হয়েছে");
-      setHasChanges(false);
+  // Sync slides from store to display state
+  useEffect(() => {
+    if (heroSlides && heroSlides.length >= 0) {
+      setDisplayedSlides(heroSlides);
     }
-  };
+  }, [heroSlides]);
 
-  // Hero Slide Handlers
+  // Sync stats from store to display state
+  useEffect(() => {
+    if (stats && stats.length >= 0) {
+      setDisplayedStats(stats);
+    }
+  }, [stats]);
+
+  // ==================== HERO SLIDES HANDLERS ====================
+
   const handleAddSlide = () => {
+    setImageUploadMode("url");
+    setSelectedSlideFile(null);
+    setPreviewImageUrl("");
     setEditingSlide({
       id: Date.now(),
       title: "",
@@ -130,73 +119,152 @@ export default function HomeAdminPage() {
       ctaText: "",
       ctaLink: "",
     });
-    setSelectedSlideFile(null);
     setIsSlideDialogOpen(true);
   };
 
   const handleEditSlide = (slide: HeroSlide) => {
-    setEditingSlide(slide);
+    setImageUploadMode("url");
     setSelectedSlideFile(null);
+    setPreviewImageUrl(getImageUrl(slide.imageUrl));
+    setEditingSlide({ ...slide });
     setIsSlideDialogOpen(true);
   };
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate it's an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("শুধুমাত্র ছবি ফাইল আপলোড করা যায়");
+        return;
+      }
+
+      setSelectedSlideFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreviewImageUrl(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveSlide = async () => {
-    if (!editingSlide?.title || !editingSlide?.imageUrl) {
-      toast.error("শিরোনাম ও ছবি URL আবশ্যক");
+    if (!editingSlide?.title) {
+      toast.error("শিরোনাম আবশ্যক");
       return;
     }
 
-    // If a new file is selected, upload it first
-    let finalImageUrl = editingSlide.imageUrl;
-    if (selectedSlideFile) {
-      setIsUploadingSlide(true);
-      try {
-        const response = await homeService.uploadImage(selectedSlideFile);
-        finalImageUrl = response.data.imageUrl;
-      } catch (error) {
-        toast.error("ছবি আপলোড করতে সমস্যা হয়েছে");
-        setIsUploadingSlide(false);
-        return;
-      }
-      setIsUploadingSlide(false);
+    if (imageUploadMode === "url" && !editingSlide.imageUrl) {
+      toast.error("ছবির URL প্রয়োজন");
+      return;
     }
 
-    setHeroSlides((prev) => {
-      const existingIndex = prev.findIndex((s) => s.id === editingSlide.id);
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = { ...editingSlide, imageUrl: finalImageUrl };
-        return updated;
+    if (imageUploadMode === "upload" && !selectedSlideFile && !previewImageUrl) {
+      toast.error("ছবি আবশ্যক");
+      return;
+    }
+
+    setIsSavingSlide(true);
+
+    try {
+      let finalImageUrl = editingSlide.imageUrl;
+      const oldImageUrl = displayedSlides.find(
+        (s) => s.id === editingSlide.id
+      )?.imageUrl;
+
+      // Upload new image if file selected
+      if (selectedSlideFile && imageUploadMode === "upload") {
+        const response = await homeService.uploadImage(selectedSlideFile);
+        finalImageUrl = response.data.imageUrl;
+
+        // Delete old uploaded image if exists and is different
+        if (oldImageUrl && oldImageUrl.startsWith("/uploads/")) {
+          try {
+            await homeService.deleteImage(oldImageUrl);
+          } catch (error) {
+            console.error("Failed to delete old image:", error);
+          }
+        }
       }
-      return [...prev, { ...editingSlide, imageUrl: finalImageUrl }];
-    });
 
-    setIsSlideDialogOpen(false);
-    setEditingSlide(null);
-    setSelectedSlideFile(null);
-    setHasChanges(true);
-    toast.success("স্লাইড সফলভাবে যোগ করা হয়েছে");
-  };
+      // Update slides array
+      const updatedSlides = displayedSlides.map((s) =>
+        s.id === editingSlide.id
+          ? { ...editingSlide, imageUrl: finalImageUrl }
+          : s
+      );
 
-  const handleDeleteSlide = () => {
-    if (deleteSlideIndex === null) return;
-    setHeroSlides((prev) => prev.filter((_, i) => i !== deleteSlideIndex));
-    setDeleteSlideIndex(null);
-    setHasChanges(true);
+      // If it's a new slide
+      if (!displayedSlides.find((s) => s.id === editingSlide.id)) {
+        updatedSlides.push({ ...editingSlide, imageUrl: finalImageUrl });
+      }
+
+      // Save to backend
+      await homeService.updateSlides({ heroSlides: updatedSlides });
+
+      setDisplayedSlides(updatedSlides);
+      setIsSlideDialogOpen(false);
+      setEditingSlide(null);
+      setSelectedSlideFile(null);
+      setPreviewImageUrl("");
+
+      toast.success("স্লাইড সফলভাবে সংরক্ষণ করা হয়েছে");
+      await fetchSlides();
+    } catch (error) {
+      console.error("Error saving slide:", error);
+      toast.error("স্লাইড সংরক্ষণে ব্যর্থ হয়েছে");
+    } finally {
+      setIsSavingSlide(false);
+    }
   };
 
   const moveSlide = (index: number, direction: "up" | "down") => {
     if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === heroSlides.length - 1) return;
+    if (direction === "down" && index === displayedSlides.length - 1) return;
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
-    const updated = [...heroSlides];
-    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
-    setHeroSlides(updated);
-    setHasChanges(true);
+    const updated = [...displayedSlides];
+    [updated[index], updated[newIndex]] = [
+      updated[newIndex],
+      updated[index],
+    ];
+    setDisplayedSlides(updated);
   };
 
-  // Stats Handlers
+  const handleDeleteSlide = async () => {
+    if (deleteSlideIndex === null) return;
+
+    try {
+      const slideToDelete = displayedSlides[deleteSlideIndex];
+      const oldImageUrl = slideToDelete.imageUrl;
+
+      // Delete uploaded image if exists
+      if (oldImageUrl && oldImageUrl.startsWith("/uploads/")) {
+        try {
+          await homeService.deleteImage(oldImageUrl);
+        } catch (error) {
+          console.error("Failed to delete image:", error);
+        }
+      }
+
+      // Remove from array and save
+      const updatedSlides = displayedSlides.filter(
+        (_, i) => i !== deleteSlideIndex
+      );
+      await homeService.updateSlides({ heroSlides: updatedSlides });
+
+      setDisplayedSlides(updatedSlides);
+      setDeleteSlideIndex(null);
+      toast.success("স্লাইড সফলভাবে মুছে ফেলা হয়েছে");
+      await fetchSlides();
+    } catch (error) {
+      console.error("Error deleting slide:", error);
+      toast.error("স্লাইড মুছতে ব্যর্থ হয়েছে");
+    }
+  };
+
+  // ==================== STATS HANDLERS ====================
+
   const handleAddStat = () => {
     setEditingStat({
       id: Date.now(),
@@ -209,81 +277,87 @@ export default function HomeAdminPage() {
   };
 
   const handleEditStat = (stat: Stat) => {
-    setEditingStat(stat);
+    setEditingStat({ ...stat });
     setIsStatDialogOpen(true);
   };
 
-  const handleSaveStat = () => {
+  const handleSaveStat = async () => {
     if (!editingStat?.label || !editingStat?.value) {
       toast.error("লেবেল ও মান আবশ্যক");
       return;
     }
 
-    setStats((prev) => {
-      const existingIndex = prev.findIndex((s) => s.id === editingStat.id);
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = editingStat;
-        return updated;
-      }
-      return [...prev, editingStat];
-    });
+    setIsSavingStat(true);
 
-    setIsStatDialogOpen(false);
-    setEditingStat(null);
-    setHasChanges(true);
+    try {
+      const updatedStats = displayedStats.map((s) =>
+        s.id === editingStat.id ? editingStat : s
+      );
+
+      // If it's a new stat
+      if (!displayedStats.find((s) => s.id === editingStat.id)) {
+        updatedStats.push(editingStat);
+      }
+
+      // Save to backend
+      await homeService.updateStats({ stats: updatedStats });
+
+      setDisplayedStats(updatedStats);
+      setIsStatDialogOpen(false);
+      setEditingStat(null);
+
+      toast.success("পরিসংখ্যান সফলভাবে সংরক্ষণ করা হয়েছে");
+      await fetchStats();
+    } catch (error) {
+      console.error("Error saving stat:", error);
+      toast.error("পরিসংখ্যান সংরক্ষণে ব্যর্থ হয়েছে");
+    } finally {
+      setIsSavingStat(false);
+    }
   };
 
-  const handleDeleteStat = () => {
+  const handleDeleteStat = async () => {
     if (deleteStatIndex === null) return;
-    setStats((prev) => prev.filter((_, i) => i !== deleteStatIndex));
-    setDeleteStatIndex(null);
-    setHasChanges(true);
+
+    try {
+      const updatedStats = displayedStats.filter((_, i) => i !== deleteStatIndex);
+      await homeService.updateStats({ stats: updatedStats });
+
+      setDisplayedStats(updatedStats);
+      setDeleteStatIndex(null);
+      toast.success("পরিসংখ্যান সফলভাবে মুছে ফেলা হয়েছে");
+      await fetchStats();
+    } catch (error) {
+      console.error("Error deleting stat:", error);
+      toast.error("পরিসংখ্যান মুছতে ব্যর্থ হয়েছে");
+    }
   };
 
   const moveStat = (index: number, direction: "up" | "down") => {
     if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === stats.length - 1) return;
+    if (direction === "down" && index === displayedStats.length - 1) return;
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
-    const updated = [...stats];
-    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
-    setStats(updated);
-    setHasChanges(true);
+    const updated = [...displayedStats];
+    [updated[index], updated[newIndex]] = [
+      updated[newIndex],
+      updated[index],
+    ];
+    setDisplayedStats(updated);
   };
-
-  if (isLoading && !homeData) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  console.log(`${ASSET_URL}${homeData?.heroSlides[1]?.imageUrl}`);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">হোম পেজ ব্যবস্থাপনা</h1>
-          <p className="text-muted-foreground">
-            হোম পেজের বিভিন্ন অংশ কাস্টমাইজ করুন
-          </p>
-        </div>
-        <Button onClick={handleSave} disabled={isLoading || !hasChanges}>
-          {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          পরিবর্তন সংরক্ষণ করুন
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold">হোম পেজ ব্যবস্থাপনা</h1>
+        <p className="text-muted-foreground">
+          হোম পেজের বিভিন্ন অংশ কাস্টমাইজ করুন
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="hero">
             <Layout className="mr-2 h-4 w-4" />
             হিরো স্লাইড
@@ -292,33 +366,25 @@ export default function HomeAdminPage() {
             <BarChart3 className="mr-2 h-4 w-4" />
             পরিসংখ্যান
           </TabsTrigger>
-          <TabsTrigger value="content">
-            <Type className="mr-2 h-4 w-4" />
-            কন্টেন্ট
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <ImageIcon className="mr-2 h-4 w-4" />
-            সেটিংস
-          </TabsTrigger>
         </TabsList>
 
         {/* Hero Slides Tab */}
         <TabsContent value="hero" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">হিরো স্লাইডসমূহ</h2>
-            <Button onClick={handleAddSlide}>
+            <Button onClick={handleAddSlide} disabled={isSlidesLoading}>
               <Plus className="mr-2 h-4 w-4" />
               নতুন স্লাইড
             </Button>
           </div>
 
           <div className="space-y-3">
-            {heroSlides.length === 0 ? (
+            {displayedSlides.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground border rounded-lg">
                 কোনো স্লাইড নেই। নতুন স্লাইড যোগ করতে বাটনে ক্লিক করুন।
               </div>
             ) : (
-              heroSlides.map((slide, index) => (
+              displayedSlides.map((slide, index) => (
                 <div
                   key={slide.id}
                   className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50"
@@ -337,7 +403,7 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      disabled={index === heroSlides.length - 1}
+                      disabled={index === displayedSlides.length - 1}
                       onClick={() => moveSlide(index, "down")}
                     >
                       <ChevronDown className="h-4 w-4" />
@@ -347,14 +413,11 @@ export default function HomeAdminPage() {
                   <div className="relative h-16 w-24 rounded overflow-hidden bg-muted">
                     {slide.imageUrl ? (
                       <Image
-                        src={
-                          slide.imageUrl.startsWith("http")
-                            ? slide.imageUrl
-                            : `${ASSET_URL}${slide.imageUrl}`
-                        }
+                        src={getImageUrl(slide.imageUrl)}
                         alt={slide.title}
                         fill
                         className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
@@ -382,7 +445,9 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="text-red-500"
-                      onClick={() => setDeleteSlideIndex(index)}
+                      onClick={() => setDeleteSlideIndex(
+                        displayedSlides.indexOf(slide)
+                      )}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -397,19 +462,19 @@ export default function HomeAdminPage() {
         <TabsContent value="stats" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">পরিসংখ্যান</h2>
-            <Button onClick={handleAddStat}>
+            <Button onClick={handleAddStat} disabled={isStatsLoading}>
               <Plus className="mr-2 h-4 w-4" />
               নতুন পরিসংখ্যান
             </Button>
           </div>
 
           <div className="space-y-3">
-            {stats.length === 0 ? (
+            {displayedStats.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground border rounded-lg">
                 কোনো পরিসংখ্যান নেই। নতুন যোগ করতে বাটনে ক্লিক করুন।
               </div>
             ) : (
-              stats.map((stat, index) => (
+              displayedStats.map((stat, index) => (
                 <div
                   key={stat.id}
                   className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50"
@@ -428,7 +493,7 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      disabled={index === stats.length - 1}
+                      disabled={index === displayedStats.length - 1}
                       onClick={() => moveStat(index, "down")}
                     >
                       <ChevronDown className="h-4 w-4" />
@@ -464,7 +529,9 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="text-red-500"
-                      onClick={() => setDeleteStatIndex(index)}
+                      onClick={() => setDeleteStatIndex(
+                        displayedStats.indexOf(stat)
+                      )}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -474,103 +541,6 @@ export default function HomeAdminPage() {
             )}
           </div>
         </TabsContent>
-
-        {/* Content Tab */}
-        <TabsContent value="content" className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="marqueeText">
-              মার্কি টেক্সট (গুরুত্বপূর্ণ ঘোষণা)
-            </Label>
-            <Textarea
-              id="marqueeText"
-              value={marqueeText}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                setMarqueeText(e.target.value);
-                setHasChanges(true);
-              }}
-              placeholder="স্ক্রলিং টেক্সট লিখুন..."
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="aboutSummary">আমাদের সম্পর্কে সারসংক্ষেপ</Label>
-            <Textarea
-              id="aboutSummary"
-              value={aboutSummary}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                setAboutSummary(e.target.value);
-                setHasChanges(true);
-              }}
-              placeholder="মাদ্রাসা সম্পর্কে সংক্ষিপ্ত বিবরণ..."
-              rows={8}
-            />
-          </div>
-        </TabsContent>
-
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="bannerImage">ব্যানার ইমেজ URL</Label>
-            <Input
-              id="bannerImage"
-              value={bannerImage}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setBannerImage(e.target.value);
-                setHasChanges(true);
-              }}
-              placeholder="https://example.com/banner.jpg"
-            />
-            {bannerImage && (
-              <div className="relative h-40 w-full rounded-lg overflow-hidden mt-2">
-                <Image
-                  src={
-                    bannerImage.startsWith("http")
-                      ? bannerImage
-                      : `${ASSET_URL}${bannerImage}`
-                  }
-                  alt="Banner preview"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="featuredNoticesLimit">ফিচার্ড নোটিশ সংখ্যা</Label>
-              <Input
-                id="featuredNoticesLimit"
-                type="number"
-                min={1}
-                max={10}
-                value={featuredNoticesLimit}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFeaturedNoticesLimit(parseInt(e.target.value) || 3);
-                  setHasChanges(true);
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="galleryPreviewLimit">
-                গ্যালারি প্রিভিউ সংখ্যা
-              </Label>
-              <Input
-                id="galleryPreviewLimit"
-                type="number"
-                min={1}
-                max={10}
-                value={galleryPreviewLimit}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setGalleryPreviewLimit(parseInt(e.target.value) || 3);
-                  setHasChanges(true);
-                }}
-              />
-            </div>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* Slide Edit Dialog */}
@@ -578,7 +548,7 @@ export default function HomeAdminPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingSlide && heroSlides.find((s) => s.id === editingSlide.id)
+              {editingSlide && displayedSlides.find((s) => s.id === editingSlide.id)
                 ? "স্লাইড সম্পাদনা"
                 : "নতুন স্লাইড"}
             </DialogTitle>
@@ -589,7 +559,7 @@ export default function HomeAdminPage() {
                 <Label>শিরোনাম *</Label>
                 <Input
                   value={editingSlide.title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingSlide({ ...editingSlide, title: e.target.value })
                   }
                 />
@@ -598,7 +568,7 @@ export default function HomeAdminPage() {
                 <Label>সাবটাইটেল</Label>
                 <Input
                   value={editingSlide.subtitle || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingSlide({
                       ...editingSlide,
                       subtitle: e.target.value,
@@ -610,7 +580,7 @@ export default function HomeAdminPage() {
                 <Label>বিবরণ</Label>
                 <Textarea
                   value={editingSlide.description || ""}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  onChange={(e) =>
                     setEditingSlide({
                       ...editingSlide,
                       description: e.target.value,
@@ -619,97 +589,95 @@ export default function HomeAdminPage() {
                   rows={3}
                 />
               </div>
-              <div className="space-y-4">
-                <Label>ছবি *</Label>
 
-                {/* Image Preview */}
-                {editingSlide.imageUrl && (
-                  <div className="relative w-full h-40 rounded-lg overflow-hidden border">
-                    <Image
-                      src={editingSlide.imageUrl}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                    <button
-                      onClick={() => {
-                        setEditingSlide({ ...editingSlide, imageUrl: "" });
-                        setSelectedSlideFile(null);
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
+              {/* Image Upload Mode Selection */}
+              <div className="space-y-3 border-t pt-4">
+                <Label className="text-base font-semibold">ছবি যোগ করুন *</Label>
+                <div className="flex gap-2">
+                  <Button
+                    variant={imageUploadMode === "url" ? "default" : "outline"}
+                    onClick={() => {
+                      setImageUploadMode("url");
+                      setSelectedSlideFile(null);
+                    }}
+                    className="flex-1"
+                  >
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    URL
+                  </Button>
+                  <Button
+                    variant={imageUploadMode === "upload" ? "default" : "outline"}
+                    onClick={() => setImageUploadMode("upload")}
+                    className="flex-1"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    আপলোড
+                  </Button>
+                </div>
+              </div>
 
-                {/* Simple File Input - No Auto Upload */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-
-                    // Validate file type
-                    if (!file.type.startsWith("image/")) {
-                      toast.error("শুধুমাত্র ছবি ফাইল গ্রহণযোগ্য");
-                      return;
-                    }
-
-                    // Validate file size (5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                      toast.error("ছবির সাইজ ৫ মেগাবাইটের চেয়ে কম হওয়া উচিত");
-                      return;
-                    }
-
-                    setSelectedSlideFile(file);
-
-                    // Show local preview
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      setEditingSlide({
-                        ...editingSlide,
-                        imageUrl: event.target?.result as string,
-                      });
-                    };
-                    reader.readAsDataURL(file);
-                  }}
-                  className="block w-full text-sm text-muted-foreground
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-primary file:text-primary-foreground
-                    hover:file:bg-primary/90"
-                />
-                <p className="text-xs text-muted-foreground">
-                  PNG, JPG, GIF - সর্বোচ্চ ৫ MB (আপলোড হবে সংরক্ষণের সময়)
-                </p>
-
-                {/* Or URL Input */}
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">
-                    অথবা সরাসরি URL দিন
-                  </Label>
+              {/* URL Mode */}
+              {imageUploadMode === "url" && (
+                <div className="space-y-3">
+                  {previewImageUrl && (
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                      <Image
+                        src={previewImageUrl}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
                   <Input
                     value={editingSlide.imageUrl}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChange={(e) => {
                       setEditingSlide({
                         ...editingSlide,
                         imageUrl: e.target.value,
-                      })
-                    }
+                      });
+                      setPreviewImageUrl(e.target.value);
+                    }}
                     placeholder="https://example.com/image.jpg"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    সম্পূর্ণ ছবির URL এখানে দিন।
+                  </p>
                 </div>
-              </div>
+              )}
+
+              {/* Upload Mode */}
+              {imageUploadMode === "upload" && (
+                <div className="space-y-3">
+                  {previewImageUrl && (
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                      <Image
+                        src={previewImageUrl}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    শুধুমাত্র ছবি ফাইল (.jpg, .png, .gif, ইত্যাদি) আপলোড করা যায়।
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>CTA টেক্সট</Label>
                   <Input
                     value={editingSlide.ctaText || ""}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChange={(e) =>
                       setEditingSlide({
                         ...editingSlide,
                         ctaText: e.target.value,
@@ -721,7 +689,7 @@ export default function HomeAdminPage() {
                   <Label>CTA লিংক</Label>
                   <Input
                     value={editingSlide.ctaLink || ""}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChange={(e) =>
                       setEditingSlide({
                         ...editingSlide,
                         ctaLink: e.target.value,
@@ -730,20 +698,35 @@ export default function HomeAdminPage() {
                   />
                 </div>
               </div>
-              <Button
-                onClick={handleSaveSlide}
-                className="w-full"
-                disabled={isUploadingSlide || isLoading}
-              >
-                {isUploadingSlide ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ছবি আপলোড করছে...
-                  </>
-                ) : (
-                  "সংরক্ষণ করুন"
-                )}
-              </Button>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsSlideDialogOpen(false);
+                    setEditingSlide(null);
+                    setSelectedSlideFile(null);
+                    setPreviewImageUrl("");
+                  }}
+                  className="flex-1"
+                >
+                  বাতিল
+                </Button>
+                <Button
+                  onClick={handleSaveSlide}
+                  className="flex-1"
+                  disabled={isSavingSlide}
+                >
+                  {isSavingSlide ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      সংরক্ষণ করছে...
+                    </>
+                  ) : (
+                    "সংরক্ষণ করুন"
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
@@ -754,7 +737,7 @@ export default function HomeAdminPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingStat && stats.find((s) => s.id === editingStat.id)
+              {editingStat && displayedStats.find((s) => s.id === editingStat.id)
                 ? "পরিসংখ্যান সম্পাদনা"
                 : "নতুন পরিসংখ্যান"}
             </DialogTitle>
@@ -765,7 +748,7 @@ export default function HomeAdminPage() {
                 <Label>লেবেল *</Label>
                 <Input
                   value={editingStat.label}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingStat({ ...editingStat, label: e.target.value })
                   }
                 />
@@ -774,7 +757,7 @@ export default function HomeAdminPage() {
                 <Label>মান *</Label>
                 <Input
                   value={editingStat.value}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingStat({ ...editingStat, value: e.target.value })
                   }
                 />
@@ -783,7 +766,7 @@ export default function HomeAdminPage() {
                 <Label>সফিক্স (যেমন: +, %)</Label>
                 <Input
                   value={editingStat.suffix || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingStat({ ...editingStat, suffix: e.target.value })
                   }
                 />
@@ -792,15 +775,39 @@ export default function HomeAdminPage() {
                 <Label>আইকন</Label>
                 <Input
                   value={editingStat.icon || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange={(e) =>
                     setEditingStat({ ...editingStat, icon: e.target.value })
                   }
                   placeholder="যেমন: Users, BookOpen, GraduationCap"
                 />
               </div>
-              <Button onClick={handleSaveStat} className="w-full">
-                সংরক্ষণ করুন
-              </Button>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsStatDialogOpen(false);
+                    setEditingStat(null);
+                  }}
+                  className="flex-1"
+                >
+                  বাতিল
+                </Button>
+                <Button
+                  onClick={handleSaveStat}
+                  className="flex-1"
+                  disabled={isSavingStat}
+                >
+                  {isSavingStat ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      সংরক্ষণ করছে...
+                    </>
+                  ) : (
+                    "সংরক্ষণ করুন"
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
