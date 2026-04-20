@@ -9,6 +9,16 @@ import { GalleryFormModal } from "./GalleryFormModal";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, ImageIcon } from "lucide-react";
 import { toast } from "react-toastify";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function GalleryAdminPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -16,6 +26,7 @@ export default function GalleryAdminPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchGallery = useCallback(async () => {
     try {
@@ -55,12 +66,13 @@ export default function GalleryAdminPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("নিশ্চিত মুছবেন?")) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
-      await galleryService.delete(id);
-      setItems((prev) => prev.filter((item) => item.id !== id));
-      toast.success("মুছে ফেলা হয়েছে");
+      await galleryService.delete(deleteId);
+      setItems((prev) => prev.filter((item) => item.id !== deleteId));
+      toast.success("মুছে ফেলা হয়েছে");
+      setDeleteId(null);
     } catch (error) {
       toast.error("মুছতে ব্যর্থ হয়েছে");
     }
@@ -106,7 +118,7 @@ export default function GalleryAdminPage() {
                 setSelectedItem(i);
                 setIsFormOpen(true);
               }}
-              onDelete={handleDelete}
+              onDelete={(id) => setDeleteId(id)}
               onView={(i) => window.open(i.imageUrl || i.videoUrl, "_blank")}
             />
           ))}
@@ -121,6 +133,30 @@ export default function GalleryAdminPage() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>মিডিয়া মুছে ফেলুন</AlertDialogTitle>
+            <AlertDialogDescription>
+              আপনি কি নিশ্চিত যে এই মিডিয়া আইটেমটি মুছে ফেলতে চান? এই কাজটি
+              অপরিবর্তনীয়।
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>
+              বাতিল
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              মুছে ফেলুন
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -58,6 +58,12 @@ import {
 
 const ASSET_URL = process.env.NEXT_PUBLIC_ASSET_URL || "http://localhost:5000";
 
+const getImageUrl = (imageUrl: string | null | undefined): string | null => {
+  if (!imageUrl) return null;
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${ASSET_URL}${imageUrl}`;
+};
+
 export default function DepartmentsAdminPage() {
   const {
     departments,
@@ -74,7 +80,8 @@ export default function DepartmentsAdminPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<Department | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<{
@@ -164,7 +171,15 @@ export default function DepartmentsAdminPage() {
     form.append("slug", formData.slug);
     form.append("description", formData.description);
     form.append("duration", formData.duration);
-    form.append("subjects", JSON.stringify(formData.subjects.split(",").map((s) => s.trim()).filter(Boolean)));
+    form.append(
+      "subjects",
+      JSON.stringify(
+        formData.subjects
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      ),
+    );
     form.append("headTeacher", formData.headTeacher);
     form.append("totalStudents", formData.totalStudents);
     form.append("isActive", String(formData.isActive));
@@ -230,7 +245,7 @@ export default function DepartmentsAdminPage() {
       displayOrder: String(dept.displayOrder || 0),
       image: null,
     });
-    setImagePreview(dept.imageUrl || null);
+    setImagePreview(getImageUrl(dept.imageUrl));
     setIsEditOpen(true);
   };
 
@@ -327,7 +342,10 @@ export default function DepartmentsAdminPage() {
               </tr>
             ) : departments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                <td
+                  colSpan={5}
+                  className="p-8 text-center text-muted-foreground"
+                >
                   কোনো বিভাগ পাওয়া যায়নি
                 </td>
               </tr>
@@ -339,10 +357,11 @@ export default function DepartmentsAdminPage() {
                       <div className="relative h-12 w-12 rounded overflow-hidden bg-muted">
                         {dept.imageUrl ? (
                           <Image
-                            src={dept.imageUrl.startsWith("http") ? dept.imageUrl : `${ASSET_URL}${dept.imageUrl}`}
+                            src={getImageUrl(dept.imageUrl)!}
                             alt={dept.name}
                             fill
                             className="object-cover"
+                            unoptimized
                           />
                         ) : (
                           <ImageIcon className="h-6 w-6 m-3 text-muted-foreground" />
@@ -350,7 +369,9 @@ export default function DepartmentsAdminPage() {
                       </div>
                       <div>
                         <div className="font-medium">{dept.name}</div>
-                        <div className="text-xs text-muted-foreground">/{dept.slug}</div>
+                        <div className="text-xs text-muted-foreground">
+                          /{dept.slug}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -463,18 +484,25 @@ export default function DepartmentsAdminPage() {
                 <div className="relative h-24 w-24 rounded-lg overflow-hidden bg-muted">
                   {selectedDepartment.imageUrl ? (
                     <Image
-                      src={selectedDepartment.imageUrl.startsWith("http") ? selectedDepartment.imageUrl : `${ASSET_URL}${selectedDepartment.imageUrl}`}
+                      src={getImageUrl(selectedDepartment.imageUrl)!}
                       alt={selectedDepartment.name}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     <ImageIcon className="h-12 w-12 m-6 text-muted-foreground" />
                   )}
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">{selectedDepartment.name}</h2>
-                  <Badge variant={selectedDepartment.isActive ? "default" : "outline"}>
+                  <h2 className="text-xl font-bold">
+                    {selectedDepartment.name}
+                  </h2>
+                  <Badge
+                    variant={
+                      selectedDepartment.isActive ? "default" : "outline"
+                    }
+                  >
                     {selectedDepartment.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
                   </Badge>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -494,8 +522,12 @@ export default function DepartmentsAdminPage() {
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">মোট শিক্ষার্থী</p>
-                    <p className="font-medium">{selectedDepartment.totalStudents}</p>
+                    <p className="text-sm text-muted-foreground">
+                      মোট শিক্ষার্থী
+                    </p>
+                    <p className="font-medium">
+                      {selectedDepartment.totalStudents}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -504,30 +536,44 @@ export default function DepartmentsAdminPage() {
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">বিভাগীয় প্রধান</p>
-                    <p className="font-medium">{selectedDepartment.headTeacher}</p>
+                    <p className="text-sm text-muted-foreground">
+                      বিভাগীয় প্রধান
+                    </p>
+                    <p className="font-medium">
+                      {selectedDepartment.headTeacher}
+                    </p>
                   </div>
                 </div>
               )}
 
               <div>
                 <p className="text-sm text-muted-foreground mb-2">বিবরণ</p>
-                <p className="text-sm bg-muted p-3 rounded-lg">{selectedDepartment.description}</p>
+                <p className="text-sm bg-muted p-3 rounded-lg">
+                  {selectedDepartment.description}
+                </p>
               </div>
 
-              {selectedDepartment.subjects && selectedDepartment.subjects.length > 0 && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">বিষয়সমূহ</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDepartment.subjects.map((subject, idx) => (
-                      <Badge key={idx} variant="outline">{subject}</Badge>
-                    ))}
+              {selectedDepartment.subjects &&
+                selectedDepartment.subjects.length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      বিষয়সমূহ
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedDepartment.subjects.map((subject, idx) => (
+                        <Badge key={idx} variant="outline">
+                          {subject}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="text-sm text-muted-foreground">
-                প্রদর্শন ক্রম: {selectedDepartment.displayOrder} | তৈরি: {new Date(selectedDepartment.createdAt).toLocaleDateString("bn-BD")}
+                প্রদর্শন ক্রম: {selectedDepartment.displayOrder} | তৈরি:{" "}
+                {new Date(selectedDepartment.createdAt).toLocaleDateString(
+                  "bn-BD",
+                )}
               </div>
             </div>
           )}
@@ -540,11 +586,14 @@ export default function DepartmentsAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>বিভাগ মুছে ফেলুন</AlertDialogTitle>
             <AlertDialogDescription>
-              আপনি কি নিশ্চিত যে এই বিভাগটি মুছে ফেলতে চান? এই কাজটি অপরিবর্তনীয়।
+              আপনি কি নিশ্চিত যে এই বিভাগটি মুছে ফেলতে চান? এই কাজটি
+              অপরিবর্তনীয়।
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteId(null)}>বাতিল</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>
+              বাতিল
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600"
@@ -599,7 +648,13 @@ function DepartmentForm({
         <div className="flex items-center gap-4">
           {imagePreview ? (
             <div className="relative h-24 w-24 rounded-lg overflow-hidden">
-              <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                fill
+                className="object-cover"
+                unoptimized
+              />
               <button
                 onClick={clearImage}
                 className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
@@ -610,7 +665,9 @@ function DepartmentForm({
           ) : (
             <div className="h-24 w-24 rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center gap-1">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">ছবি নির্বাচন করুন</span>
+              <span className="text-xs text-muted-foreground">
+                ছবি নির্বাচন করুন
+              </span>
             </div>
           )}
           <div className="flex-1">
@@ -640,7 +697,9 @@ function DepartmentForm({
           <Input
             id="slug"
             value={formData.slug}
-            onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, slug: e.target.value }))
+            }
             placeholder="যেমন: hifz"
           />
         </div>
@@ -651,7 +710,9 @@ function DepartmentForm({
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, description: e.target.value }))
+          }
           placeholder="বিভাগের বিস্তারিত বিবরণ"
           rows={4}
         />
@@ -663,7 +724,9 @@ function DepartmentForm({
           <Input
             id="duration"
             value={formData.duration}
-            onChange={(e) => setFormData((prev) => ({ ...prev, duration: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, duration: e.target.value }))
+            }
             placeholder="যেমন: ৩ বছর"
           />
         </div>
@@ -672,7 +735,9 @@ function DepartmentForm({
           <Input
             id="headTeacher"
             value={formData.headTeacher}
-            onChange={(e) => setFormData((prev) => ({ ...prev, headTeacher: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, headTeacher: e.target.value }))
+            }
             placeholder="প্রধান শিক্ষকের নাম"
           />
         </div>
@@ -685,7 +750,12 @@ function DepartmentForm({
             id="totalStudents"
             type="number"
             value={formData.totalStudents}
-            onChange={(e) => setFormData((prev) => ({ ...prev, totalStudents: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                totalStudents: e.target.value,
+              }))
+            }
           />
         </div>
         <div className="space-y-2">
@@ -694,7 +764,9 @@ function DepartmentForm({
             id="displayOrder"
             type="number"
             value={formData.displayOrder}
-            onChange={(e) => setFormData((prev) => ({ ...prev, displayOrder: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, displayOrder: e.target.value }))
+            }
           />
         </div>
       </div>
@@ -704,7 +776,9 @@ function DepartmentForm({
         <Input
           id="subjects"
           value={formData.subjects}
-          onChange={(e) => setFormData((prev) => ({ ...prev, subjects: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, subjects: e.target.value }))
+          }
           placeholder="কুরআন, তাজবিদ, আরবি"
         />
       </div>
@@ -713,13 +787,19 @@ function DepartmentForm({
         <Switch
           id="isActive"
           checked={formData.isActive}
-          onCheckedChange={(v: boolean) => setFormData((prev) => ({ ...prev, isActive: v }))}
+          onCheckedChange={(v: boolean) =>
+            setFormData((prev) => ({ ...prev, isActive: v }))
+          }
         />
         <Label htmlFor="isActive">সক্রিয় বিভাগ</Label>
       </div>
 
       <Button onClick={onSubmit} disabled={isLoading} className="w-full">
-        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : submitText}
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          submitText
+        )}
       </Button>
     </div>
   );
