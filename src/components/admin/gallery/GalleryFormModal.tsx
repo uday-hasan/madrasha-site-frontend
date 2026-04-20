@@ -177,7 +177,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Upload, X, Film, Image as ImageIcon } from "lucide-react";
+import { Loader2, Upload, X, Film } from "lucide-react";
 import Image from "next/image";
 
 interface GalleryFormModalProps {
