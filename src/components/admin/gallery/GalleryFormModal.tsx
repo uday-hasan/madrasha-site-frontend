@@ -198,6 +198,7 @@ export const GalleryFormModal = ({
   const [mediaType, setMediaType] = useState<MediaType>("IMAGE");
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isFeatured, setIsFeatured] = useState(initialData?.featured || false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form when editing
@@ -209,11 +210,13 @@ export const GalleryFormModal = ({
 
       setUploadMethod(isLocalFile ? "file" : "url");
       if (isLocalFile) setPreviewUrl(existingUrl || null);
+      setIsFeatured(initialData.featured || false);
     } else {
       // Reset when opening "Add New"
       setPreviewUrl(null);
       setMediaType("IMAGE");
       setUploadMethod("file");
+      setIsFeatured(false);
     }
   }, [initialData, isOpen]);
 
@@ -243,15 +246,8 @@ export const GalleryFormModal = ({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    // Ensure featured is always sent (as "true" or "false" string for backend)
-    const featuredCheckbox = (
-      e.currentTarget as HTMLFormElement
-    ).elements.namedItem("featured") as HTMLInputElement;
-    if (featuredCheckbox) {
-      formData.set("featured", featuredCheckbox.checked ? "true" : "false");
-    } else {
-      formData.set("featured", "false");
-    }
+    // Add featured state to FormData
+    formData.set("featured", isFeatured ? "true" : "false");
 
     await onSubmit(formData);
   };
@@ -310,8 +306,8 @@ export const GalleryFormModal = ({
           <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
             <Checkbox
               id="featured"
-              name="featured"
-              defaultChecked={initialData?.featured || false}
+              checked={isFeatured}
+              onCheckedChange={(checked) => setIsFeatured(checked as boolean)}
               className="w-4 h-4"
             />
             <Label
