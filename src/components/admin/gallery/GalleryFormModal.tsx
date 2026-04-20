@@ -176,6 +176,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Upload, X, Film, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 
@@ -241,6 +242,17 @@ export const GalleryFormModal = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    // Ensure featured is always sent (as "true" or "false" string for backend)
+    const featuredCheckbox = (
+      e.currentTarget as HTMLFormElement
+    ).elements.namedItem("featured") as HTMLInputElement;
+    if (featuredCheckbox) {
+      formData.set("featured", featuredCheckbox.checked ? "true" : "false");
+    } else {
+      formData.set("featured", "false");
+    }
+
     await onSubmit(formData);
   };
 
@@ -293,6 +305,21 @@ export const GalleryFormModal = ({
                 className=""
               />
             </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
+            <Checkbox
+              id="featured"
+              name="featured"
+              defaultChecked={initialData?.featured || false}
+              className="w-4 h-4"
+            />
+            <Label
+              htmlFor="featured"
+              className="text-xs text-slate-400 cursor-pointer flex-1"
+            >
+              এটি ফিচার্ড মিডিয়া করুন (হোম পেজে প্রদর্শিত হবে)
+            </Label>
           </div>
 
           <div className="space-y-1">
