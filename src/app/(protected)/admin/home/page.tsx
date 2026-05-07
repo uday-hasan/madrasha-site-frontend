@@ -69,7 +69,9 @@ export default function HomeAdminPage() {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isSlideDialogOpen, setIsSlideDialogOpen] = useState(false);
   const [deleteSlideIndex, setDeleteSlideIndex] = useState<number | null>(null);
-  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">("url");
+  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">(
+    "url",
+  );
   const [selectedSlideFile, setSelectedSlideFile] = useState<File | null>(null);
   const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
   const [isSavingSlide, setIsSavingSlide] = useState(false);
@@ -159,7 +161,11 @@ export default function HomeAdminPage() {
       return;
     }
 
-    if (imageUploadMode === "upload" && !selectedSlideFile && !previewImageUrl) {
+    if (
+      imageUploadMode === "upload" &&
+      !selectedSlideFile &&
+      !previewImageUrl
+    ) {
       toast.error("ছবি আবশ্যক");
       return;
     }
@@ -169,7 +175,7 @@ export default function HomeAdminPage() {
     try {
       let finalImageUrl = editingSlide.imageUrl;
       const oldImageUrl = displayedSlides.find(
-        (s) => s.id === editingSlide.id
+        (s) => s.id === editingSlide.id,
       )?.imageUrl;
 
       // Upload new image if file selected
@@ -191,7 +197,7 @@ export default function HomeAdminPage() {
       const updatedSlides = displayedSlides.map((s) =>
         s.id === editingSlide.id
           ? { ...editingSlide, imageUrl: finalImageUrl }
-          : s
+          : s,
       );
 
       // If it's a new slide
@@ -224,10 +230,7 @@ export default function HomeAdminPage() {
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
     const updated = [...displayedSlides];
-    [updated[index], updated[newIndex]] = [
-      updated[newIndex],
-      updated[index],
-    ];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
     setDisplayedSlides(updated);
   };
 
@@ -236,26 +239,18 @@ export default function HomeAdminPage() {
 
     try {
       const slideToDelete = displayedSlides[deleteSlideIndex];
-      const oldImageUrl = slideToDelete.imageUrl;
 
-      // Delete uploaded image if exists
-      if (oldImageUrl && oldImageUrl.startsWith("/uploads/")) {
-        try {
-          await homeService.deleteImage(oldImageUrl);
-        } catch (error) {
-          console.error("Failed to delete image:", error);
-        }
-      }
+      // Call backend deleteSlide endpoint which handles both slide and image deletion
+      await homeService.deleteSlide(slideToDelete.id);
 
-      // Remove from array and save
+      // Remove from local state
       const updatedSlides = displayedSlides.filter(
-        (_, i) => i !== deleteSlideIndex
+        (_, i) => i !== deleteSlideIndex,
       );
-      await homeService.updateSlides({ heroSlides: updatedSlides });
-
       setDisplayedSlides(updatedSlides);
       setDeleteSlideIndex(null);
-      toast.success("স্লাইড সফলভাবে মুছে ফেলা হয়েছে");
+
+      toast.success("স্লাইড এবং ছবি সফলভাবে মুছে ফেলা হয়েছে");
       await fetchSlides();
     } catch (error) {
       console.error("Error deleting slide:", error);
@@ -291,7 +286,7 @@ export default function HomeAdminPage() {
 
     try {
       const updatedStats = displayedStats.map((s) =>
-        s.id === editingStat.id ? editingStat : s
+        s.id === editingStat.id ? editingStat : s,
       );
 
       // If it's a new stat
@@ -320,7 +315,9 @@ export default function HomeAdminPage() {
     if (deleteStatIndex === null) return;
 
     try {
-      const updatedStats = displayedStats.filter((_, i) => i !== deleteStatIndex);
+      const updatedStats = displayedStats.filter(
+        (_, i) => i !== deleteStatIndex,
+      );
       await homeService.updateStats({ stats: updatedStats });
 
       setDisplayedStats(updatedStats);
@@ -339,10 +336,7 @@ export default function HomeAdminPage() {
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
     const updated = [...displayedStats];
-    [updated[index], updated[newIndex]] = [
-      updated[newIndex],
-      updated[index],
-    ];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
     setDisplayedStats(updated);
   };
 
@@ -445,9 +439,9 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="text-red-500"
-                      onClick={() => setDeleteSlideIndex(
-                        displayedSlides.indexOf(slide)
-                      )}
+                      onClick={() =>
+                        setDeleteSlideIndex(displayedSlides.indexOf(slide))
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -529,9 +523,9 @@ export default function HomeAdminPage() {
                       variant="ghost"
                       size="icon"
                       className="text-red-500"
-                      onClick={() => setDeleteStatIndex(
-                        displayedStats.indexOf(stat)
-                      )}
+                      onClick={() =>
+                        setDeleteStatIndex(displayedStats.indexOf(stat))
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -548,7 +542,8 @@ export default function HomeAdminPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingSlide && displayedSlides.find((s) => s.id === editingSlide.id)
+              {editingSlide &&
+              displayedSlides.find((s) => s.id === editingSlide.id)
                 ? "স্লাইড সম্পাদনা"
                 : "নতুন স্লাইড"}
             </DialogTitle>
@@ -592,7 +587,9 @@ export default function HomeAdminPage() {
 
               {/* Image Upload Mode Selection */}
               <div className="space-y-3 border-t pt-4">
-                <Label className="text-base font-semibold">ছবি যোগ করুন *</Label>
+                <Label className="text-base font-semibold">
+                  ছবি যোগ করুন *
+                </Label>
                 <div className="flex gap-2">
                   <Button
                     variant={imageUploadMode === "url" ? "default" : "outline"}
@@ -606,7 +603,9 @@ export default function HomeAdminPage() {
                     URL
                   </Button>
                   <Button
-                    variant={imageUploadMode === "upload" ? "default" : "outline"}
+                    variant={
+                      imageUploadMode === "upload" ? "default" : "outline"
+                    }
                     onClick={() => setImageUploadMode("upload")}
                     className="flex-1"
                   >
@@ -667,7 +666,8 @@ export default function HomeAdminPage() {
                     onChange={handleImageFileChange}
                   />
                   <p className="text-xs text-muted-foreground">
-                    শুধুমাত্র ছবি ফাইল (.jpg, .png, .gif, ইত্যাদি) আপলোড করা যায়।
+                    শুধুমাত্র ছবি ফাইল (.jpg, .png, .gif, ইত্যাদি) আপলোড করা
+                    যায়।
                   </p>
                 </div>
               )}
@@ -737,7 +737,8 @@ export default function HomeAdminPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editingStat && displayedStats.find((s) => s.id === editingStat.id)
+              {editingStat &&
+              displayedStats.find((s) => s.id === editingStat.id)
                 ? "পরিসংখ্যান সম্পাদনা"
                 : "নতুন পরিসংখ্যান"}
             </DialogTitle>

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LayoutDashboard } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { GoogleTranslate } from "./GoogleTranslate";
 import { MobileMenu } from "./MobileMenu";
@@ -10,11 +10,14 @@ import { navItems } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site-config";
 import { cn } from "@/lib/utils";
 import { useDepartmentStore } from "@/stores/departmentStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
   const { activeDepartments, fetchActiveDepartments } = useDepartmentStore();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchActiveDepartments();
@@ -105,6 +108,18 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <Link href="/admin/dashboard">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:flex gap-1"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden md:inline">ড্যাশবোর্ড</span>
+                </Button>
+              </Link>
+            )}
             <div className="hidden md:block">
               <GoogleTranslate />
             </div>

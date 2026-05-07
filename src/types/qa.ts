@@ -1,7 +1,7 @@
 export interface QAAnswer {
   id: string;
   authorName: string;
-  authorRole: "admin" | "teacher" | "user";
+  authorRole: "ADMIN" | "TEACHER" | "USER";
   content: string;
   createdAt: string;
   replies: QAReply[];
@@ -10,7 +10,7 @@ export interface QAAnswer {
 export interface QAReply {
   id: string;
   authorName: string;
-  authorRole: "admin" | "teacher" | "user";
+  authorRole: "ADMIN" | "TEACHER" | "USER";
   content: string;
   createdAt: string;
 }
@@ -23,6 +23,7 @@ export interface QAQuestion {
   createdAt: string;
   answers: QAAnswer[];
   isResolved: boolean;
+  status?: "DRAFT" | "PUBLISHED";
 }
 
 export interface QAConfig {

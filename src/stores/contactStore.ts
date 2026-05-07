@@ -1,8 +1,10 @@
 "use client";
 import { create } from "zustand";
-import { ContactInfo, ContactFormData } from "@/types/contact";
-import { fakeContactInfo } from "@/lib/fake-data/contact-data";
-import { fakeDelay } from "@/lib/api/client";
+import {
+  ContactInfo,
+  ContactFormData,
+  contactService,
+} from "@/api/contact/contact.service";
 
 interface ContactStore {
   contactInfo: ContactInfo | null;
@@ -23,20 +25,27 @@ export const useContactStore = create<ContactStore>((set) => ({
   fetchContactInfo: async () => {
     set({ isLoading: true, error: null });
     try {
-      await fakeDelay(300);
-      set({ contactInfo: fakeContactInfo, isLoading: false });
-    } catch {
-      set({ error: "ডেটা লোড করতে সমস্যা হয়েছে।", isLoading: false });
+      const response = await contactService.getContactData();
+      set({ contactInfo: response.data, isLoading: false });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "ডেটা লোড করতে সমস্যা হয়েছে।",
+        isLoading: false,
+      });
     }
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  submitContactForm: async (_data: ContactFormData) => {
+  submitContactForm: async (data: ContactFormData) => {
     set({ isSubmitting: true, error: null, submitSuccess: false });
     try {
-      await fakeDelay(1000);
+      await contactService.submitContactForm(data);
       set({ isSubmitting: false, submitSuccess: true });
-    } catch {
-      set({ error: "বার্তা পাঠাতে সমস্যা হয়েছে।", isSubmitting: false });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "বার্তা পাঠাতে সমস্যা হয়েছে।",
+        isSubmitting: false,
+      });
     }
   },
 }));

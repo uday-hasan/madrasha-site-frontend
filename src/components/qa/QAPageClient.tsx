@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQAStore } from "@/stores/useQAStore";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { QAQuestionCard } from "@/components/qa/QAQuestionCard";
 import { QACategoryFilter } from "@/components/qa/QACategoryFilter";
 import { QASearchBar } from "@/components/qa/QASearchBar";
+import { AskQuestionModal } from "@/components/qa/AskQuestionModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquarePlus, HelpCircle } from "lucide-react";
@@ -21,6 +22,7 @@ export default function QAPageClient() {
     setSelectedCategory,
     setSearchQuery,
   } = useQAStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchQAData();
@@ -114,10 +116,7 @@ export default function QAPageClient() {
               </div>
               <Button
                 className="w-full sm:w-auto"
-                onClick={() => {
-                  // TODO: Replace with real modal/form when backend is ready
-                  alert("ব্যাকএন্ড সংযুক্ত হলে এখান থেকে প্রশ্ন করতে পারবেন।");
-                }}
+                onClick={() => setIsModalOpen(true)}
               >
                 <MessageSquarePlus className="w-4 h-4 mr-2" />
                 প্রশ্ন করুন
@@ -125,6 +124,17 @@ export default function QAPageClient() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Ask Question Modal */}
+        <AskQuestionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          categories={data.categories}
+          onSuccess={() => {
+            // Optionally refresh the questions list
+            fetchQAData();
+          }}
+        />
 
         {/* Questions */}
         <div className="space-y-4">

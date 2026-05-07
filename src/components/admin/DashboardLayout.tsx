@@ -7,7 +7,7 @@ import { adminNavItems } from "@/lib/constants/navigation";
 import { siteConfig } from "@/lib/constants/site-config";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { LogOut, Home } from "lucide-react";
+import { LogOut, Home, User } from "lucide-react";
 import { ReactNode } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -89,7 +89,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <span className="text-sm text-muted-foreground">
               {user?.name || "অ্যাডমিন"}
             </span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Link href="/admin/profile">
+              <Button variant="ghost" size="sm" title="প্রোফাইল">
+                <User className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              title="লগআউট"
+            >
               <LogOut className="h-4 w-4" />
             </Button>
           </div>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, CheckCircle, Map } from "lucide-react";
 
 export default function ContactPage() {
   const {
@@ -103,6 +103,25 @@ export default function ContactPage() {
                         </p>
                       </div>
                     </div>
+
+                    {contactInfo.googleMapsUrl && (
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                          <Map className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold mb-1">অবস্থান</p>
+                          <a
+                            href={contactInfo.googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            গুগল ম্যাপে দেখুন
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>

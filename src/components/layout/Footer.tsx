@@ -5,26 +5,35 @@ import Link from "next/link";
 import { siteConfig } from "@/lib/constants/site-config";
 import { navItems } from "@/lib/constants/navigation";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Phone, Mail, Clock, Facebook, Youtube } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Facebook,
+  Youtube,
+  Map,
+} from "lucide-react";
 import Image from "next/image";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useContactStore } from "@/stores/contactStore";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { getSettingsByCategory, fetchSettingsByCategory } = useSettingsStore();
+  const { contactInfo, fetchContactInfo } = useContactStore();
 
   useEffect(() => {
-    fetchSettingsByCategory("contact");
-  }, [fetchSettingsByCategory]);
-
-  const contactSettings = getSettingsByCategory("contact");
+    fetchContactInfo();
+  }, [fetchContactInfo]);
 
   // Get dynamic contact info or fall back to siteConfig
-  const contactPhone = contactSettings.contact_phone || siteConfig.phone[0];
-  const contactEmail = contactSettings.contact_email || siteConfig.email[0];
   const contactAddress =
-    contactSettings.contact_address ||
-    `${siteConfig.address}, ${siteConfig.city}`;
+    contactInfo && contactInfo.address
+      ? `${contactInfo.address}, ${contactInfo.city}, ${contactInfo.district}`
+      : `${siteConfig.address}, ${siteConfig.city}`;
+
+  const contactPhone = contactInfo?.phone?.[0] || siteConfig.phone[0];
+  const contactEmail = contactInfo?.email?.[0] || siteConfig.email[0];
+  const officeHours = contactInfo?.officeHours || siteConfig.officeHours;
 
   return (
     <footer className="bg-card border-t mt-auto">
@@ -78,8 +87,21 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <span>{siteConfig.officeHours}</span>
+                <span>{officeHours}</span>
               </li>
+              {contactInfo?.googleMapsUrl && (
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Map className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                  <a
+                    href={contactInfo.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary"
+                  >
+                    অবস্থান
+                  </a>
+                </li>
+              )}
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Image
                   src="/images/whatsapp.svg"

@@ -1,8 +1,17 @@
 import { create } from "zustand";
-import { qaConfig } from "@/lib/fake-data/qa";
+import { qaService } from "@/api/qa/qa.service";
 import { QAConfig } from "@/types/qa";
-// import { apiClient } from '@/lib/api/client';
-// import { endpoints } from '@/lib/api/endpoints';
+
+const qaCategories = [
+  "আকীদা ও বিশ্বাস",
+  "নামায ও ইবাদত",
+  "যাকাত ও সদকা",
+  "বিবাহ ও পারিবারিক",
+  "লেনদেন ও ব্যবসা",
+  "সাধারণ মাসায়েল",
+  "ভর্তি সংক্রান্ত",
+  "অন্যান্য",
+];
 
 interface QAState {
   data: QAConfig | null;
@@ -24,15 +33,23 @@ export const useQAStore = create<QAState>((set) => ({
   fetchQAData: async () => {
     set({ loading: true, error: null });
     try {
-      // TODO: Replace with real API call when backend is ready
-      // const response = await apiClient.get(endpoints.QA);
-      // set({ data: response.data, loading: false });
-
-      // Fake API call (simulating network delay)
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      set({ data: qaConfig, loading: false });
-    } catch {
-      set({ error: "তথ্য লোড করতে ব্যর্থ হয়েছে", loading: false });
+      const response = await qaService.getAllPublished();
+      set({
+        data: {
+          pageTitle: "প্রশ্ন-উত্তর",
+          pageDescription:
+            "দ্বীনি বিষয়ে আপনার যেকোনো প্রশ্ন করুন। আমাদের অভিজ্ঞ ইসলামিক স্কলারগন (মুফতী) আপনার প্রশ্নের উত্তর দেবেন ইনশাআল্লাহ",
+          categories: qaCategories,
+          questions: response.data || [],
+        },
+        loading: false,
+      });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "তথ্য লোড করতে ব্যর্থ হয়েছে",
+        loading: false,
+      });
     }
   },
   setSelectedCategory: (category) => set({ selectedCategory: category }),

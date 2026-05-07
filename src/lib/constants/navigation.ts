@@ -29,6 +29,7 @@ export const navItems: NavItem[] = [
 
 export const adminNavItems: NavItem[] = [
   { label: "ড্যাশবোর্ড", href: "/admin/dashboard" },
+  { label: "প্রোফাইল", href: "/admin/profile" },
   { label: "হোম", href: "/admin/home" },
   { label: "আমাদের সম্পর্কে", href: "/admin/about" },
   {
