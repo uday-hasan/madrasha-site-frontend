@@ -241,7 +241,7 @@ export default function HomeAdminPage() {
       const slideToDelete = displayedSlides[deleteSlideIndex];
 
       // Call backend deleteSlide endpoint which handles both slide and image deletion
-      await homeService.deleteSlide(slideToDelete.id);
+      await homeService.deleteSlide(String(slideToDelete.id));
 
       // Remove from local state
       const updatedSlides = displayedSlides.filter(

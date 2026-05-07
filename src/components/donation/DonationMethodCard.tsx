@@ -1,11 +1,11 @@
 import { DonationMethod } from "@/types/donation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Smartphone, Globe } from "lucide-react";
+import { Building2, Smartphone, Banknote } from "lucide-react";
 
 const methodIcons = {
   bank: Building2,
   mobile: Smartphone,
-  online: Globe,
+  cash: Banknote,
 };
 
 interface DonationMethodCardProps {

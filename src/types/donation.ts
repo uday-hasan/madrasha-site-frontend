@@ -9,7 +9,7 @@ export interface DonationCategory {
 
 export interface DonationMethod {
   id: string;
-  type: "bank" | "mobile" | "online";
+  type: "bank" | "mobile" | "cash";
   name: string;
   details: Record<string, string>;
   logo?: string;

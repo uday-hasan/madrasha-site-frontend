@@ -57,11 +57,12 @@ export default function AdminProfilePage() {
   const fetchUserProfile = async () => {
     try {
       setIsLoading(true);
-      const response = await authService.getMe();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = (await authService.getMe()) as any;
       setUser(response.data);
       setEditName({ name: response.data.name });
       setError(null);
-    } catch (err) {
+    } catch {
       setError("প্রোফাইল লোড করতে ব্যর্থ হয়েছে");
     } finally {
       setIsLoading(false);
@@ -166,9 +167,10 @@ export default function AdminProfilePage() {
 
     try {
       setIsSubmitting(true);
-      const response = await authService.updateProfile({
+      const response = (await authService.updateProfile({
         name: editName.name,
-      });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      })) as any;
 
       setUser(response.data);
       setSuccess("নাম সফলভাবে পরিবর্তন হয়েছে");

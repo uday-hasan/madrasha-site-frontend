@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, GraduationCap, User } from "lucide-react";
 
 const roleConfig = {
-  admin: { label: "প্রশাসন", icon: Shield },
-  teacher: { label: "শিক্ষক", icon: GraduationCap },
-  user: { label: "সদস্য", icon: User },
+  ADMIN: { label: "প্রশাসন", icon: Shield },
+  TEACHER: { label: "শিক্ষক", icon: GraduationCap },
+  USER: { label: "সদস্য", icon: User },
 };
 
 interface QAAnswerBlockProps {
