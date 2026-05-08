@@ -44,7 +44,7 @@ export function HeroBanner() {
   return (
     <div className="relative w-full overflow-hidden">
       {/* Image and content container */}
-      <div className="relative min-h-96 md:min-h-125">
+      <div className="relative w-full min-h-96 md:min-h-125">
         {/* Background images */}
         {heroSlides.map((s, idx) =>
           s.imageUrl ? (
@@ -53,6 +53,7 @@ export function HeroBanner() {
               src={s.imageUrl}
               alt={s.title}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
               className={cn(
                 "w-full h-full object-cover transition-opacity duration-1000",
                 idx === currentSlide ? "opacity-100" : "opacity-0",
