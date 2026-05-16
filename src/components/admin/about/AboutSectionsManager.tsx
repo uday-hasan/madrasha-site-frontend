@@ -35,7 +35,6 @@ export default function AboutSectionsManager() {
 
   const [formData, setFormData] = useState({
     title: "",
-    slug: "",
     description: "",
     displayOrder: 0,
   });
@@ -62,14 +61,13 @@ export default function AboutSectionsManager() {
       setEditingId(section.id);
       setFormData({
         title: section.title,
-        slug: section.slug,
         description: section.description,
         displayOrder: section.displayOrder,
       });
     } else {
       setIsEditing(false);
       setEditingId(null);
-      setFormData({ title: "", slug: "", description: "", displayOrder: 0 });
+      setFormData({ title: "", description: "", displayOrder: 0 });
     }
     setIsDialogOpen(true);
   };
@@ -78,7 +76,7 @@ export default function AboutSectionsManager() {
     setIsDialogOpen(false);
     setIsEditing(false);
     setEditingId(null);
-    setFormData({ title: "", slug: "", description: "", displayOrder: 0 });
+    setFormData({ title: "", description: "", displayOrder: 0 });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,19 +146,6 @@ export default function AboutSectionsManager() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) =>
-                    setFormData({ ...formData, slug: e.target.value })
-                  }
-                  placeholder="e.g., appeal-section"
                   required
                 />
               </div>
