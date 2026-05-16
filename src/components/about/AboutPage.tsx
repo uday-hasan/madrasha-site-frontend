@@ -248,25 +248,51 @@ export default function AboutPage() {
         </section>
       )}
 
-      {/* Facilities Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="আমাদের সুযোগ-সুবিধা"
-            subtitle="শিক্ষার্থীদের জন্য আমাদের প্রতিষ্ঠানে যা রয়েছে"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {siteConfig.facilities.map((facility, i) => (
-              <AnimatedSection key={facility} delay={i * 0.1}>
-                <div className="flex items-start gap-3 p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-sm font-medium">{facility}</p>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Facilities Section - Dynamic from AboutSections */}
+      {(() => {
+        const facilitiesSection = aboutSections.find(
+          (s) => s.slug === "benefits" || s.slug === "facilities",
+        );
+        return facilitiesSection ? (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <SectionTitle
+                title={facilitiesSection.title}
+                subtitle={facilitiesSection.description}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {siteConfig.facilities.map((facility, i) => (
+                  <AnimatedSection key={facility} delay={i * 0.1}>
+                    <div className="flex items-start gap-3 p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm font-medium">{facility}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <SectionTitle
+                title="আমাদের সুযোগ-সুবিধা"
+                subtitle="শিক্ষার্থীদের জন্য আমাদের প্রতিষ্ঠানে যা রয়েছে"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {siteConfig.facilities.map((facility, i) => (
+                  <AnimatedSection key={facility} delay={i * 0.1}>
+                    <div className="flex items-start gap-3 p-4 bg-card rounded-lg border hover:shadow-md transition-shadow">
+                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm font-medium">{facility}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Achievements Section */}
       {achievements.length > 0 && (
@@ -332,16 +358,36 @@ export default function AboutPage() {
         </section>
       )}
 
-      {/* Foundation Services Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="আল আশরাফ ফাউন্ডেশনের সেবাসমূহ" />
-          {/* You can add foundation services here if available */}
-          <p className="text-muted-foreground text-center">
-            সেবাসমূহের তালিকা শীঘ্রই আপডেট করা হবে।
-          </p>
-        </div>
-      </section>
+      {/* Foundation Services Section - Dynamic from AboutSections */}
+      {(() => {
+        const servicesSection = aboutSections.find(
+          (s) =>
+            s.slug === "services" ||
+            s.slug === "al-ashrof-foundation-services" ||
+            s.slug === "foundation-services",
+        );
+        return servicesSection ? (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <SectionTitle title={servicesSection.title} />
+              <div className="bg-card rounded-lg border p-6 md:p-8">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {servicesSection.description}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="py-16">
+            <div className="container mx-auto px-4">
+              <SectionTitle title="আল আশরাফ ফাউন্ডেশনের সেবাসমূহ" />
+              <p className="text-muted-foreground text-center">
+                সেবাসমূহের তালিকা শীঘ্রই আপডেট করা হবে।
+              </p>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Proposed Building Section */}
       {proposedBuildings.length > 0 && (
@@ -355,14 +401,13 @@ export default function AboutPage() {
               {proposedBuildings.map((project, i) => (
                 <AnimatedSection key={project.id} delay={i * 0.1}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="bg-primary/10 h-48 flex items-center justify-center overflow-hidden">
+                    <div className="relative bg-primary/10 h-48 flex items-center justify-center overflow-hidden">
                       {project.imageUrl ? (
                         <Image
                           src={project.imageUrl}
                           alt={project.title}
+                          fill
                           className="w-full h-full object-cover object-center"
-                          width={400}
-                          height={200}
                         />
                       ) : (
                         <Hammer className="h-16 w-16 text-primary/40" />
