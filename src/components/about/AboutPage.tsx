@@ -1,25 +1,85 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { AnimatedSection } from "@/components/shared/AnimatedSection";
-import { fakeAchievements } from "@/lib/fake-data/about-data";
-import { leadership } from "@/lib/fake-data/teachers-data";
+import {
+  aboutService,
+  AboutValue,
+  Achievement,
+  ProposedBuilding,
+  LeadershipMember,
+  AboutQuote,
+  AboutSection,
+} from "@/api/about/about.service";
 import { siteConfig } from "@/lib/constants/site-config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { foundationServices } from "@/lib/fake-data/service-data";
 import { CheckCircle, Shield, Building2, Hammer, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { teacherService } from "@/api/teacher/teacher.service";
 
 export default function AboutPage() {
   const { getSettingsByCategory, fetchSettingsByCategory } = useSettingsStore();
 
+  const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
+  const [aboutValues, setAboutValues] = useState<AboutValue[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [proposedBuildings, setProposedBuildings] = useState<
+    ProposedBuilding[]
+  >([]);
+  const [leadership, setLeadership] = useState<LeadershipMember[]>([]);
+  const [aboutQuotes, setAboutQuotes] = useState<AboutQuote[]>([]);
+  const [teachers, setTeachers] = useState<number>(0);
+  const [notices, setNotices] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [selectedValue, setSelectedValue] = useState<AboutValue | null>(null);
+
   useEffect(() => {
     fetchSettingsByCategory("about");
   }, [fetchSettingsByCategory]);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch all about data in parallel
+        const [
+          sectionsRes,
+          valuesRes,
+          achievementsRes,
+          buildingsRes,
+          leadershipRes,
+          quotesRes,
+          teachersRes,
+        ] = await Promise.all([
+          aboutService.getSections(),
+          aboutService.getValues(),
+          aboutService.getAchievements(),
+          aboutService.getBuildings(),
+          aboutService.getLeadership(),
+          aboutService.getQuotes(),
+          teacherService.getAllActive(),
+        ]);
+
+        setAboutSections(sectionsRes.data || []);
+        setAboutValues(valuesRes.data || []);
+        setAchievements(achievementsRes.data || []);
+        setProposedBuildings(buildingsRes.data || []);
+        setLeadership(leadershipRes.data || []);
+        setAboutQuotes(quotesRes.data || []);
+        setTeachers(teachersRes.data?.length || 0);
+      } catch (error) {
+        console.error("Failed to fetch about data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
 
   const aboutSettings = getSettingsByCategory("about");
 
@@ -28,35 +88,12 @@ export default function AboutPage() {
     subtitle:
       aboutSettings.about_description || "মাদরাসা দারুল আরকাম আল ইসলামিয়া",
     history:
-      aboutSettings.about_description ||
+      aboutSettings.about_history ||
       "মাদরাসা দারুল আরকাম আল ইসলামিয়া ২০২৪ সাল থেকে ইসলামী শিক্ষার আলো ছড়িয়ে দিচ্ছে।",
-    mission:
-      aboutSettings.about_mission || "কুরআন ও সুন্নাহর আলোকে প্রজন্ম গঠন",
-    vision:
-      aboutSettings.about_vision ||
-      "ইলম ও আমলের সমন্বয়ে আদর্শ মুসলিম সমাজ বিনির্মাণ",
-    founderName: aboutSettings.about_founder || "মাওলানা আব্দুল্লাহ আল মামুন",
-    founderMessage: "আমাদের লক্ষ্য সন্তানদের সঠিক ইসলামী শিক্ষায় শিক্ষিত করা।",
-    request: "আপনাদের সহযোগিতা ও দোয়া কামনা করছি।",
-    values: [
-      { title: "ইলম", content: "জ্ঞান অর্জন ও বিতরণ" },
-      { title: "আমল", content: "জ্ঞানের প্রয়োগ" },
-      { title: "আখলাক", content: "নৈতিক চারিত্র্য" },
-      { title: "তাহাজ্জুদ", content: "রাতের ইবাদত" },
-      { title: "দাওয়াত", content: "ইসলামের প্রচার" },
-    ],
   };
 
-  const leadershipMembers = [
-    leadership.chairman,
-    leadership.viceChairman,
-    leadership.founder,
-  ];
-
-  const [selectedValue, setSelectedValue] = useState<{
-    title: string;
-    content: string;
-  } | null>(null);
+  // Get first quote for founder's message section
+  const firstQuote = aboutQuotes.length > 0 ? aboutQuotes[0] : null;
 
   return (
     <>
@@ -88,6 +125,7 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* History & Founder's Message */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -102,92 +140,113 @@ export default function AboutPage() {
                 <h3 className="text-xl font-bold mb-4 text-primary">
                   প্রতিষ্ঠাতার বাণী
                 </h3>
-                <blockquote className="text-muted-foreground italic leading-relaxed">
-                  &ldquo;{about.founderMessage}&rdquo;
-                </blockquote>
-                <p className="mt-4 font-semibold">— {about.founderName}</p>
+                {firstQuote ? (
+                  <>
+                    <blockquote className="text-muted-foreground italic leading-relaxed">
+                      &ldquo;{firstQuote.quote}&rdquo;
+                    </blockquote>
+                    <p className="mt-4 font-semibold">— {firstQuote.author}</p>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground">
+                    কোনো বাণী পাওয়া যায়নি
+                  </p>
+                )}
               </div>
             </AnimatedSection>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <AnimatedSection>
-              <h2 className="text-2xl font-bold mb-4">আবেদন</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                {about.request}
-              </p>
-            </AnimatedSection>
-            <AnimatedSection>
-              <h2 className="text-2xl font-bold mb-4">
-                আমাদের লক্ষ্য ও উদ্দেশ্য
-              </h2>
-              <p className="text-muted-foreground leading-relaxed">
-                {about.mission}
-              </p>
-            </AnimatedSection>
-            <AnimatedSection delay={0.2}>
-              <h2 className="text-2xl font-bold mb-4">অবতরণিকা</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                {about.vision}
-              </p>
-            </AnimatedSection>
+      {/* About Sections (Mission, Vision, Appeal) */}
+      {aboutSections.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {aboutSections.map((section, index) => (
+                <AnimatedSection key={section.id} delay={index * 0.15}>
+                  <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {section.description}
+                  </p>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Leadership Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="পরিচালনা পরিষদ"
-            subtitle="আমাদের মাদরাসার নেতৃত্বদানকারী ব্যক্তিত্ব"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {leadershipMembers.map((member, i) => (
-              <AnimatedSection key={member.name} delay={i * 0.1}>
-                <Card className="text-center hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-8 pb-6">
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-2xl font-bold">
-                      <Shield className="h-10 w-10" />
-                    </div>
-                    <h3 className="font-bold text-lg">{member.name}</h3>
-                    <p className="text-primary font-medium mt-1">
-                      {member.designation}
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
+      {leadership.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <SectionTitle
+              title="পরিচালনা পরিষদ"
+              subtitle="আমাদের মাদরাসার নেতৃত্বদানকারী ব্যক্তিত্ব"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {leadership.map((member, i) => (
+                <AnimatedSection key={member.id} delay={i * 0.1}>
+                  <Card className="text-center hover:shadow-lg transition-shadow">
+                    <CardContent className="pt-8 pb-6">
+                      {member.photoUrl ? (
+                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                          <Image
+                            src={member.photoUrl}
+                            alt={member.name}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-2xl font-bold">
+                          <Shield className="h-10 w-10" />
+                        </div>
+                      )}
+                      <h3 className="font-bold text-lg">{member.name}</h3>
+                      <p className="text-primary font-medium mt-1">
+                        {member.designation}
+                      </p>
+                      {member.bio && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {member.bio}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <SectionTitle title="আমাদের মূল্যবোধ" />
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {about.values.map((value, i) => (
-              <AnimatedSection key={value.title} delay={i * 0.1}>
-                <Card
-                  className="text-center p-4 cursor-pointer"
-                  onClick={() => setSelectedValue(value)}
-                >
-                  <CardContent className="pt-4">
-                    <CheckCircle className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <p className="font-semibold text-sm underline">
-                      {value.title}
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
+      {/* Values Section */}
+      {aboutValues.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <SectionTitle title="আমাদের মূল্যবোধ" />
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {aboutValues.map((value, i) => (
+                <AnimatedSection key={value.id} delay={i * 0.1}>
+                  <Card
+                    className="text-center p-4 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedValue(value)}
+                  >
+                    <CardContent className="pt-4">
+                      <CheckCircle className="h-8 w-8 text-primary mx-auto mb-2" />
+                      <p className="font-semibold text-sm underline">
+                        {value.title}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Facilities Section */}
       <section className="py-16">
@@ -209,140 +268,133 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="আমাদের অর্জন"
-            subtitle="আমাদের যাত্রার মাইলফলকগুলো"
-          />
-          <div className="relative">
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
-            <div className="space-y-8">
-              {fakeAchievements.map((achievement, i) => (
-                <AnimatedSection key={achievement.id} delay={i * 0.1}>
-                  <div
-                    className={`flex items-center gap-6 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
-                  >
-                    <div className="flex-1 md:text-right md:pr-8">
-                      {i % 2 === 0 ? (
-                        <Card>
-                          <CardContent className="p-4">
-                            <p className="text-primary font-bold">
-                              {achievement.year}
-                            </p>
-                            <h3 className="font-semibold mt-1">
-                              {achievement.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {achievement.description}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ) : (
-                        <div />
-                      )}
+      {/* Achievements Section */}
+      {achievements.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <SectionTitle
+              title="আমাদের অর্জন"
+              subtitle="আমাদের যাত্রার মাইলফলকগুলো"
+            />
+            <div className="relative">
+              <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
+              <div className="space-y-8">
+                {achievements.map((achievement, i) => (
+                  <AnimatedSection key={achievement.id} delay={i * 0.1}>
+                    <div
+                      className={`flex items-center gap-6 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+                    >
+                      <div className="flex-1 md:text-right md:pr-8">
+                        {i % 2 === 0 ? (
+                          <Card>
+                            <CardContent className="p-4">
+                              <p className="text-primary font-bold">
+                                {achievement.year}
+                              </p>
+                              <h3 className="font-semibold mt-1">
+                                {achievement.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {achievement.description}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <div />
+                        )}
+                      </div>
+                      <div className="shrink-0 w-4 h-4 bg-primary rounded-full border-4 border-background z-10 hidden md:block" />
+                      <div className="flex-1 md:pl-8">
+                        {i % 2 !== 0 ? (
+                          <Card>
+                            <CardContent className="p-4">
+                              <p className="text-primary font-bold">
+                                {achievement.year}
+                              </p>
+                              <h3 className="font-semibold mt-1">
+                                {achievement.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {achievement.description}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <div />
+                        )}
+                      </div>
                     </div>
-                    <div className="shrink-0 w-4 h-4 bg-primary rounded-full border-4 border-background z-10 hidden md:block" />
-                    <div className="flex-1 md:pl-8">
-                      {i % 2 !== 0 ? (
-                        <Card>
-                          <CardContent className="p-4">
-                            <p className="text-primary font-bold">
-                              {achievement.year}
-                            </p>
-                            <h3 className="font-semibold mt-1">
-                              {achievement.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {achievement.description}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ) : (
-                        <div />
-                      )}
-                    </div>
-                  </div>
-                </AnimatedSection>
-              ))}
+                  </AnimatedSection>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Foundation Services Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <SectionTitle
-            title="আল আশরাফ ফাউন্ডেশনের সেবাসমূহ"
-            subtitle={foundationServices.description}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {foundationServices.services.map((service, i) => (
-              <AnimatedSection key={service.id} delay={i * 0.05}>
-                <Card className="h-full hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <span
-                      className="text-3xl"
-                      role="img"
-                      aria-label={service.title}
-                    >
-                      {service.icon}
-                    </span>
-                    <h3 className="font-semibold mt-3 mb-1">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {service.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
-          </div>
+          <SectionTitle title="আল আশরাফ ফাউন্ডেশনের সেবাসমূহ" />
+          {/* You can add foundation services here if available */}
+          <p className="text-muted-foreground text-center">
+            সেবাসমূহের তালিকা শীঘ্রই আপডেট করা হবে।
+          </p>
         </div>
       </section>
 
       {/* Proposed Building Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <SectionTitle
-            title="প্রস্তাবিত ভবন"
-            subtitle="ভবিষ্যত পরিকল্পনা ও উন্নয়ন প্রকল্প"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {foundationServices.futureProjects.map((project, i) => (
-              <AnimatedSection key={project.title} delay={i * 0.1}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="bg-primary/10 h-58 flex items-center justify-center overflow-hidden">
-                    {project.image ? (
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover object-top"
-                        width={400}
-                        height={200}
-                      />
-                    ) : (
-                      <Hammer className="h-16 w-16 text-primary/40" />
-                    )}
-                  </div>
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-lg leading-snug">
-                        {project.title}
-                      </h3>
-                      <Badge className="shrink-0">{project.status}</Badge>
+      {proposedBuildings.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <SectionTitle
+              title="প্রস্তাবিত ভবন"
+              subtitle="ভবিষ্যত পরিকল্পনা ও উন্নয়ন প্রকল্প"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {proposedBuildings.map((project, i) => (
+                <AnimatedSection key={project.id} delay={i * 0.1}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="bg-primary/10 h-48 flex items-center justify-center overflow-hidden">
+                      {project.imageUrl ? (
+                        <Image
+                          src={project.imageUrl}
+                          alt={project.title}
+                          className="w-full h-full object-cover object-center"
+                          width={400}
+                          height={200}
+                        />
+                      ) : (
+                        <Hammer className="h-16 w-16 text-primary/40" />
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {project.estimatedCost}
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-bold text-lg leading-snug">
+                          {project.title}
+                        </h3>
+                        <Badge className="shrink-0">{project.status}</Badge>
+                      </div>
+                      {project.estimatedCost && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {project.estimatedCost}
+                        </p>
+                      )}
+                      {project.description && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {project.description}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
+      {/* At a Glance Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <SectionTitle title="এক নজরে মাদ্রাসা" />
@@ -350,14 +402,14 @@ export default function AboutPage() {
             {[
               { label: "প্রতিষ্ঠাকাল", value: siteConfig.foundedYear },
               {
+                label: "অভিজ্ঞ শিক্ষক",
+                value: `${loading ? "-" : teachers}জন`,
+              },
+              { label: "বিভাগ", value: `${siteConfig.totalDepartments}টি` },
+              {
                 label: "মোট শিক্ষার্থী",
                 value: `${siteConfig.totalStudents}+`,
               },
-              {
-                label: "অভিজ্ঞ শিক্ষক",
-                value: `${siteConfig.totalTeachers}জন`,
-              },
-              { label: "বিভাগ", value: `${siteConfig.totalDepartments}টি` },
             ].map((item) => (
               <Card key={item.label} className="text-center p-6">
                 <CardContent className="pt-0">
@@ -374,7 +426,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* POPUP */}
+      {/* Modal for Values */}
       {selectedValue && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
@@ -394,7 +446,7 @@ export default function AboutPage() {
               <CheckCircle className="h-10 w-10 text-primary" />
               <h3 className="text-lg font-bold">{selectedValue.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                {selectedValue.content}
+                {selectedValue.description}
               </p>
             </div>
           </div>
