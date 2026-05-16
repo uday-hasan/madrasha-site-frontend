@@ -1,23 +1,66 @@
-import type { Metadata } from "next";
-// import { DashboardLayout } from "@/components/admin/DashboardLayout";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { siteConfig } from "@/lib/constants/site-config";
-import { Users, BookOpen, Bell, Image } from "lucide-react";
+import { BookOpen, Bell, Image } from "lucide-react";
+import { teacherService } from "@/api/teacher/teacher.service";
+import { noticeService } from "@/api/notice/notice.service";
+import { galleryService } from "@/api/gallery/gallery.service";
 
-export const metadata: Metadata = {
-  title: "ড্যাশবোর্ড",
-};
-
-const stats = [
-  { title: "মোট শিক্ষার্থী", value: siteConfig.totalStudents, icon: Users },
-  { title: "শিক্ষকমণ্ডলী", value: siteConfig.totalTeachers, icon: BookOpen },
-  { title: "সক্রিয় নোটিশ", value: 5, icon: Bell },
-  { title: "গ্যালারি ছবি", value: 6, icon: Image },
-];
+interface DashboardStats {
+  teachersCount: number;
+  activeNoticesCount: number;
+  galleryCount: number;
+}
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    teachersCount: 0,
+    activeNoticesCount: 0,
+    galleryCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch teachers count
+        const teachersResponse = await teacherService.getAllActive();
+        const teachersCount = teachersResponse.data?.length || 0;
+
+        // Fetch active notices count
+        const noticesResponse = await noticeService.getActive();
+        const activeNoticesCount = noticesResponse.data?.length || 0;
+
+        // Fetch gallery items count
+        const galleryResponse = await galleryService.getAll({});
+        const galleryCount = galleryResponse.data?.length || 0;
+
+        setStats({
+          teachersCount,
+          activeNoticesCount,
+          galleryCount,
+        });
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const dashboardStats = [
+    { title: "শিক্ষকমণ্ডলী", value: stats.teachersCount, icon: BookOpen },
+    { title: "সক্রিয় নোটিশ", value: stats.activeNoticesCount, icon: Bell },
+    { title: "গ্যালারি ছবি", value: stats.galleryCount, icon: Image },
+  ];
+
   return (
-    // <DashboardLayout>
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">ড্যাশবোর্ড</h2>
@@ -26,8 +69,8 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {dashboardStats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -36,7 +79,9 @@ export default function DashboardPage() {
               <stat.icon className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stat.value}</div>
+              <div className="text-3xl font-bold">
+                {loading ? "-" : stat.value}
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -53,6 +98,5 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
     </div>
-    // </DashboardLayout>
   );
 }
