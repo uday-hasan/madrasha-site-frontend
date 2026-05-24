@@ -20,14 +20,20 @@ export const departmentService = {
       params: query as Record<string, string>,
     }),
 
+  // Get all active departments (for admin selection)
+  getAllDepartments: () =>
+    fetcher<ApiResponse<Department[]>>("/departments/active"),
+
   // Get active departments (for public pages)
-  getActive: () => fetcher<ApiResponse<Department[]>>('/departments/active'),
+  getActive: () => fetcher<ApiResponse<Department[]>>("/departments/active"),
 
   // Get department by ID
-  getById: (id: string) => fetcher<ApiResponse<Department>>(`/departments/${id}`),
+  getById: (id: string) =>
+    fetcher<ApiResponse<Department>>(`/departments/${id}`),
 
   // Get department by slug
-  getBySlug: (slug: string) => fetcher<ApiResponse<Department>>(`/departments/slug/${slug}`),
+  getBySlug: (slug: string) =>
+    fetcher<ApiResponse<Department>>(`/departments/slug/${slug}`),
 
   // Create department (Admin only)
   create: (formData: FormData) =>

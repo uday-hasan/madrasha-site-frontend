@@ -1,30 +1,67 @@
-import type { Metadata } from "next";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
-import { fakeAdmissionInfo } from "@/lib/fake-data/admission-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Calendar, FileText, Clock } from "lucide-react";
-import { siteConfig } from "@/lib/constants/site-config";
-
-export const metadata: Metadata = {
-  title: "ভর্তি তথ্য",
-  description: `${siteConfig.name} ভর্তির তথ্য ও প্রয়োজনীয় কাগজপত্র।`,
-};
+import {
+  admissionService,
+  type AdmissionInfo,
+} from "@/api/admission/admission.service";
 
 export default function AdmissionPage() {
-  const admission = fakeAdmissionInfo;
+  const [admissionInfo, setAdmissionInfo] = useState<AdmissionInfo | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAdmissionInfo = async () => {
+      try {
+        setLoading(true);
+        const response = (await admissionService.getFullAdmissionInfo()) as any;
+        setAdmissionInfo(response.data);
+      } catch (err) {
+        console.error("Failed to fetch admission info:", err);
+        setError("ভর্তি তথ্য লোড করতে ব্যর্থ হয়েছে");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdmissionInfo();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">লোড হচ্ছে...</p>
+      </div>
+    );
+  }
+
+  if (error || !admissionInfo) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500">{error || "ডেটা লোড করতে পারা যায়নি"}</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <PageHeader
         title="ভর্তি তথ্য"
-        subtitle={`শিক্ষাবর্ষ ${admission.session}`}
+        subtitle={`শিক্ষাবর্ষ ${admissionInfo.settings.session}`}
       />
 
-      {admission.isOpen && (
+      {admissionInfo.settings.isOpen && (
         <div className="bg-green-500 text-white py-3 text-center font-semibold">
-          ভর্তি চলছে! শেষ তারিখ: {admission.endDate}
+          ভর্তি চলছে! শেষ তারিখ: {admissionInfo.settings.endDate}
         </div>
       )}
 
@@ -35,7 +72,7 @@ export default function AdmissionPage() {
               <div>
                 <SectionTitle title="ভর্তি প্রক্রিয়া" centered={false} />
                 <div className="space-y-4">
-                  {admission.process.map((step, i) => (
+                  {admissionInfo.processes.map((step, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shrink-0">
                         {i + 1}
@@ -52,11 +89,11 @@ export default function AdmissionPage() {
                   centered={false}
                 />
                 <div className="space-y-4">
-                  {admission.requirements.map((req, i) => (
+                  {admissionInfo.requirements.map((req, i) => (
                     <Card key={i}>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg">
-                          {req.department}
+                          {req.department?.name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
@@ -122,7 +159,7 @@ export default function AdmissionPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {admission.importantDates.map((item, i) => (
+                    {admissionInfo.importantDates.map((item, i) => (
                       <div key={i} className="flex items-start gap-3 text-sm">
                         <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                         <div>
@@ -139,8 +176,13 @@ export default function AdmissionPage() {
                 <CardContent className="p-6 text-center">
                   <Clock className="h-10 w-10 mx-auto mb-3 opacity-80" />
                   <h3 className="font-bold text-lg mb-2">অফিস সময়</h3>
-                  <p className="text-sm opacity-90">শনি - বৃহস্পতি</p>
-                  <p className="text-sm opacity-90">সকাল ৮টা - বিকেল ৪টা</p>
+                  <p className="text-sm opacity-90">
+                    {admissionInfo.settings.officeHoursDays}
+                  </p>
+                  <p className="text-sm opacity-90">
+                    {admissionInfo.settings.officeHoursStart} -{" "}
+                    {admissionInfo.settings.officeHoursEnd}
+                  </p>
                 </CardContent>
               </Card>
             </div>
