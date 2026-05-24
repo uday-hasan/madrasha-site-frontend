@@ -87,7 +87,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>সাম্প্রতিক কার্যক্রম</CardTitle>
         </CardHeader>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             ব্যাকএন্ড সংযোগ হলে এখানে সাম্প্রতিক কার্যক্রম দেখাবে।
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
