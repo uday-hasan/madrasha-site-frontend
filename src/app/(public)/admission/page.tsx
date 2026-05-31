@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionTitle } from "@/components/shared/SectionTitle";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Calendar, FileText, Clock } from "lucide-react";
+import { CheckCircle, Calendar, FileText, Clock, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   admissionService,
   type AdmissionInfo,
@@ -64,6 +66,25 @@ export default function AdmissionPage() {
           ভর্তি চলছে! শেষ তারিখ: {admissionInfo.settings.endDate}
         </div>
       )}
+
+            <section className="py-8">
+        <div className="container mx-auto px-4">
+          <Link href="/application-form">
+            <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">অনলাইনে আবেদন করুন</h3>
+                  <p className="text-muted-foreground">মাদ্রাসায় ভর্তির জন্য এখনই আবেদন করুন</p>
+                </div>
+                <Button size="lg" className="gap-2">
+                  আবেদন করুন
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </section>
 
       <section className="py-16">
         <div className="container mx-auto px-4">

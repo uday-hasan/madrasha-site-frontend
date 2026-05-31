@@ -44,6 +44,7 @@ export const adminNavItems: NavItem[] = [
   },
   { label: "শিক্ষকমণ্ডলী", href: "/admin/teachers" },
   { label: "ভর্তি তথ্য", href: "/admin/admission" },
+  { label: "শিক্ষার্থীর আবেদন", href: "/admin/applications" },
   // { label: "ফলাফল", href: "/admin/results" },
   { label: "গ্যালারি", href: "/admin/gallery" },
   { label: "নোটিশ", href: "/admin/notices" },
