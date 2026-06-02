@@ -1,16 +1,15 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  Loader2,
-  Plus,
-  Trash2,
-  Edit,
-  Save,
-} from "lucide-react";
+import { Loader2, Plus, Trash2, Edit, Save } from "lucide-react";
 import { useDonationStore } from "@/stores/useDonationStore";
-import { donationService, DonationCategory, DonationMethod } from "@/api/donation/donation.service";
+import {
+  donationService,
+  DonationCategory,
+  DonationMethod,
+} from "@/api/donation/donation.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,8 +25,11 @@ import {
 export default function DonationAdminPage() {
   const { data, loading, fetchDonationData } = useDonationStore();
   const [isSaving, setIsSaving] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<DonationCategory | null>(null);
-  const [editingMethod, setEditingMethod] = useState<DonationMethod | null>(null);
+  const [editingCategory, setEditingCategory] =
+    useState<DonationCategory | null>(null);
+  const [editingMethod, setEditingMethod] = useState<DonationMethod | null>(
+    null,
+  );
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isMethodDialogOpen, setIsMethodDialogOpen] = useState(false);
 
@@ -51,10 +53,18 @@ export default function DonationAdminPage() {
         pageTitle: data.pageTitle || "",
         pageDescription: data.pageDescription || "",
         bannerText: data.bannerText || "",
-        quranicVerse: data.quranicVerse || { arabic: "", bangla: "", reference: "" },
+        quranicVerse: data.quranicVerse || {
+          arabic: "",
+          bangla: "",
+          reference: "",
+        },
         categories: (data.categories as DonationCategory[]) || [],
         methods: (data.methods as DonationMethod[]) || [],
-        contactForDonation: data.contactForDonation || { phone: "", email: "", note: "" },
+        contactForDonation: data.contactForDonation || {
+          phone: "",
+          email: "",
+          note: "",
+        },
       });
     }
   }, [data]);
@@ -81,13 +91,16 @@ export default function DonationAdminPage() {
       setFormData({
         ...formData,
         categories: formData.categories.map((c) =>
-          c.id === editingCategory.id ? category : c
+          c.id === editingCategory.id ? category : c,
         ),
       });
     } else {
       setFormData({
         ...formData,
-        categories: [...formData.categories, { ...category, id: Date.now().toString() }],
+        categories: [
+          ...formData.categories,
+          { ...category, id: Date.now().toString() },
+        ],
       });
     }
     setIsCategoryDialogOpen(false);
@@ -112,13 +125,16 @@ export default function DonationAdminPage() {
       setFormData({
         ...formData,
         methods: formData.methods.map((m) =>
-          m.id === editingMethod.id ? method : m
+          m.id === editingMethod.id ? method : m,
         ),
       });
     } else {
       setFormData({
         ...formData,
-        methods: [...formData.methods, { ...method, id: Date.now().toString() }],
+        methods: [
+          ...formData.methods,
+          { ...method, id: Date.now().toString() },
+        ],
       });
     }
     setIsMethodDialogOpen(false);
@@ -145,7 +161,9 @@ export default function DonationAdminPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">দান পৃষ্ঠা ব্যবস্থাপনা</h1>
-        <p className="text-muted-foreground">দান পৃষ্ঠার সকল তথ্য এখানে সম্পাদনা করুন</p>
+        <p className="text-muted-foreground">
+          দান পৃষ্ঠার সকল তথ্য এখানে সম্পাদনা করুন
+        </p>
       </div>
 
       {/* Basic Info */}
@@ -457,7 +475,12 @@ function CategoryDialog({
     if (editing) {
       setFormData(editing);
     } else {
-      setFormData({ id: Date.now().toString(), title: "", description: "", icon: "" });
+      setFormData({
+        id: Date.now().toString(),
+        title: "",
+        description: "",
+        icon: "",
+      });
     }
   }, [editing, open]);
 
@@ -525,21 +548,46 @@ function MethodDialog({
     id: "",
     type: "bank",
     name: "",
-    details: {},
+    details: {
+      accountNumber: "",
+      description: "",
+    },
   });
 
   useEffect(() => {
     if (editing) {
-      setFormData(editing);
+      setFormData({
+        ...editing,
+        // Ensure details has the expected structure even if coming from old data
+        details: {
+          accountNumber: editing.details?.accountNumber || "",
+          description: editing.details?.description || "",
+          ...editing.details, // keep any other existing fields if any
+        },
+      });
     } else {
       setFormData({
         id: Date.now().toString(),
         type: "bank",
         name: "",
-        details: {},
+        details: {
+          accountNumber: "",
+          description: "",
+        },
       });
     }
   }, [editing, open]);
+
+  // Helper to update specific detail fields
+  const updateDetail = (key: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      details: {
+        ...prev.details,
+        [key]: value,
+      },
+    }));
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -557,9 +605,10 @@ function MethodDialog({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="দানের মাধ্যমের নাম"
+              placeholder="যেমন: সোনালী ব্যাংক, বিকাশ (Personal)"
             />
           </div>
+
           <div className="space-y-2">
             <Label>ধরন</Label>
             <select
@@ -570,31 +619,35 @@ function MethodDialog({
                   type: e.target.value as "bank" | "mobile" | "cash",
                 })
               }
-              className="w-full border rounded-md p-2"
+              className="w-full border rounded-md p-2 bg-background"
             >
               <option value="bank">ব্যাংক</option>
               <option value="mobile">মোবাইল ব্যাংকিং</option>
               <option value="cash">নগদ</option>
             </select>
           </div>
+
+          {/* New Account Number Input */}
           <div className="space-y-2">
-            <Label>বিবরণ (JSON)</Label>
+            <Label>হিসাব নম্বর / নম্বর</Label>
+            <Input
+              value={formData.details.accountNumber || ""}
+              onChange={(e) => updateDetail("accountNumber", e.target.value)}
+              placeholder="যেমন: ১২৩৪৫৬৭৮৯০ অথবা ০১৭১২-xxxxxx"
+            />
+          </div>
+
+          {/* New Description Input */}
+          <div className="space-y-2">
+            <Label>বিস্তারিত বিবরণ</Label>
             <Textarea
-              value={JSON.stringify(formData.details, null, 2)}
-              onChange={(e) => {
-                try {
-                  setFormData({
-                    ...formData,
-                    details: JSON.parse(e.target.value),
-                  });
-                } catch {
-                  // Invalid JSON, ignore
-                }
-              }}
-              placeholder='{"description": "..."}'
+              value={formData.details.description || ""}
+              onChange={(e) => updateDetail("description", e.target.value)}
+              placeholder="শাখার নাম, রাউটিং নম্বর বা অন্যান্য তথ্য..."
               rows={3}
             />
           </div>
+
           <Button onClick={() => onSave(formData)} className="w-full">
             সংরক্ষণ করুন
           </Button>
