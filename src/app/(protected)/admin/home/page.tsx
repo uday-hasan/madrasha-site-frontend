@@ -14,11 +14,12 @@ import {
   ChevronDown,
   Upload,
   Link as LinkIcon,
+  Info,
 } from "lucide-react";
 import Image from "next/image";
 
 import { useHomeStore } from "@/stores/homeStore";
-import { HeroSlide, Stat } from "@/types/home";
+import { HeroSlide, Stat, AboutSummaryData, AboutValue } from "@/types/home";
 import { homeService } from "@/api/home/home.service";
 
 import { Button } from "@/components/ui/button";
@@ -54,12 +55,15 @@ const getImageUrl = (imageUrl: string | undefined): string => {
 
 export default function HomeAdminPage() {
   const {
+    homeData,
     heroSlides,
     stats,
     isSlidesLoading,
     isStatsLoading,
     fetchSlides,
     fetchStats,
+    fetchHomeData,
+    updateAboutSummary,
   } = useHomeStore();
 
   const [activeTab, setActiveTab] = useState("hero");
@@ -86,11 +90,33 @@ export default function HomeAdminPage() {
   // Load data on mount
   useEffect(() => {
     const loadData = async () => {
+      await fetchHomeData();
       await fetchSlides();
       await fetchStats();
     };
     loadData();
-  }, [fetchSlides, fetchStats]);
+  }, [fetchHomeData, fetchSlides, fetchStats]);
+
+  // About Summary State
+  const [aboutSummary, setAboutSummary] = useState<AboutSummaryData>({
+    title: "",
+    text1: "",
+    text2: "",
+    values: [],
+  });
+  const [isSavingAbout, setIsSavingAbout] = useState(false);
+
+  // Sync aboutSummary from store to display state
+  useEffect(() => {
+    if (homeData?.aboutSummary) {
+      setAboutSummary({
+        title: homeData.aboutSummary.title || "",
+        text1: homeData.aboutSummary.text1 || "",
+        text2: homeData.aboutSummary.text2 || "",
+        values: homeData.aboutSummary.values || [],
+      });
+    }
+  }, [homeData?.aboutSummary]);
 
   // Sync slides from store to display state
   useEffect(() => {
@@ -340,6 +366,60 @@ export default function HomeAdminPage() {
     setDisplayedStats(updated);
   };
 
+  // ==================== ABOUT SUMMARY HANDLERS ====================
+  const handleSaveAboutSummary = async () => {
+    if (!aboutSummary.title) {
+      toast.error("শিরোনাম আবশ্যক");
+      return;
+    }
+
+    setIsSavingAbout(true);
+    try {
+      const success = await updateAboutSummary({
+        aboutSummary,
+      });
+      if (success) {
+        toast.success("আমাদের সম্পর্কে সফলভাবে সংরক্ষণ করা হয়েছে");
+        await fetchHomeData();
+      } else {
+        toast.error("সংরক্ষণ করতে সমস্যা হয়েছে");
+      }
+    } catch (error) {
+      console.error("Error saving about summary:", error);
+      toast.error("সংরক্ষণ করতে সমস্যা হয়েছে");
+    } finally {
+      setIsSavingAbout(false);
+    }
+  };
+
+  const handleAddAboutValue = () => {
+    setAboutSummary((prev) => ({
+      ...prev,
+      values: [...prev.values, { icon: "BookOpen", title: "", desc: "" }],
+    }));
+  };
+
+  const handleUpdateAboutValue = (index: number, field: keyof AboutValue, value: string) => {
+    const newValues = [...aboutSummary.values];
+    newValues[index] = { ...newValues[index], [field]: value };
+    setAboutSummary({ ...aboutSummary, values: newValues });
+  };
+
+  const handleRemoveAboutValue = (index: number) => {
+    const newValues = aboutSummary.values.filter((_, i) => i !== index);
+    setAboutSummary({ ...aboutSummary, values: newValues });
+  };
+
+  const moveAboutValue = (index: number, direction: "up" | "down") => {
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === aboutSummary.values.length - 1) return;
+
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    const newValues = [...aboutSummary.values];
+    [newValues[index], newValues[newIndex]] = [newValues[newIndex], newValues[index]];
+    setAboutSummary({ ...aboutSummary, values: newValues });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -351,7 +431,7 @@ export default function HomeAdminPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="hero">
             <Layout className="mr-2 h-4 w-4" />
             হিরো স্লাইড
@@ -359,6 +439,10 @@ export default function HomeAdminPage() {
           <TabsTrigger value="stats">
             <BarChart3 className="mr-2 h-4 w-4" />
             পরিসংখ্যান
+          </TabsTrigger>
+          <TabsTrigger value="about">
+            <Info className="mr-2 h-4 w-4" />
+            আমাদের সম্পর্কে
           </TabsTrigger>
         </TabsList>
 
@@ -532,6 +616,128 @@ export default function HomeAdminPage() {
                   </div>
                 </div>
               ))
+            )}
+          </div>
+        </TabsContent>
+
+        {/* About Summary Tab */}
+        <TabsContent value="about" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">আমাদের সম্পর্কে ব্যবস্থাপনা</h2>
+            <Button onClick={handleSaveAboutSummary} disabled={isSavingAbout}>
+              {isSavingAbout ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  সংরক্ষণ করছে...
+                </>
+              ) : (
+                "সংরক্ষণ করুন"
+              )}
+            </Button>
+          </div>
+
+          <div className="space-y-4 border p-4 rounded-lg bg-card">
+            <div className="space-y-2">
+              <Label>শিরোনাম *</Label>
+              <Input
+                value={aboutSummary.title || ""}
+                onChange={(e) => setAboutSummary({ ...aboutSummary, title: e.target.value })}
+                placeholder="যেমন: আমাদের সম্পর্কে"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>প্যারাগ্রাফ ১</Label>
+              <Textarea
+                value={aboutSummary.text1 || ""}
+                onChange={(e) => setAboutSummary({ ...aboutSummary, text1: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>প্যারাগ্রাফ ২</Label>
+              <Textarea
+                value={aboutSummary.text2 || ""}
+                onChange={(e) => setAboutSummary({ ...aboutSummary, text2: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-6">
+            <h3 className="text-md font-semibold">মূল্যবোধসমূহ (Values)</h3>
+            <Button variant="outline" size="sm" onClick={handleAddAboutValue}>
+              <Plus className="mr-2 h-4 w-4" />
+              নতুন যোগ করুন
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {aboutSummary.values.map((value, index) => (
+              <div key={index} className="flex gap-4 p-4 border rounded-lg bg-muted/20 relative">
+                <div className="flex flex-col gap-1 justify-center border-r pr-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === 0}
+                    onClick={() => moveAboutValue(index, "up")}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === aboutSummary.values.length - 1}
+                    onClick={() => moveAboutValue(index, "down")}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex-1 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>আইকন নাম</Label>
+                      <Input
+                        value={value.icon}
+                        onChange={(e) => handleUpdateAboutValue(index, "icon", e.target.value)}
+                        placeholder="যেমন: BookOpen, Users, Award, Heart"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>শিরোনাম *</Label>
+                      <Input
+                        value={value.title}
+                        onChange={(e) => handleUpdateAboutValue(index, "title", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>বিবরণ *</Label>
+                    <Textarea
+                      value={value.desc}
+                      onChange={(e) => handleUpdateAboutValue(index, "desc", e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500 absolute top-2 right-2"
+                  onClick={() => handleRemoveAboutValue(index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            
+            {aboutSummary.values.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                কোনো মূল্যবোধ যোগ করা হয়নি
+              </div>
             )}
           </div>
         </TabsContent>

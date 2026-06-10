@@ -28,12 +28,26 @@ export interface NewsItem {
   createdAt: string;
 }
 
+export interface AboutValue {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface AboutSummaryData {
+  title: string;
+  text1?: string;
+  text2?: string;
+  values: AboutValue[];
+}
+
 export interface HomePageData {
   heroSlides: HeroSlide[];
   stats: Stat[];
   featuredNotices: NewsItem[];
   latestGallery: GalleryPreviewItem[];
   activeDepartments: DepartmentPreview[];
+  aboutSummary?: AboutSummaryData;
 }
 
 export interface GalleryPreviewItem {
@@ -59,4 +73,5 @@ export interface DepartmentPreview {
 export interface UpdateHomeDataInput {
   heroSlides?: HeroSlide[];
   stats?: Stat[];
+  aboutSummary?: AboutSummaryData;
 }

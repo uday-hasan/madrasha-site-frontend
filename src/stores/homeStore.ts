@@ -22,6 +22,9 @@ interface HomeStore {
   fetchStats: () => Promise<void>;
   updateStats: (data: UpdateHomeDataInput) => Promise<boolean>;
 
+  // Admin: About Summary
+  updateAboutSummary: (data: UpdateHomeDataInput) => Promise<boolean>;
+
   // Slide management
   upsertSlide: (formData: FormData) => Promise<boolean>;
   deleteSlide: (id: string) => Promise<boolean>;
@@ -141,6 +144,31 @@ export const useHomeStore = create<HomeStore>((set, get) => ({
             ? err.message
             : "পরিসংখ্যান আপডেট করতে সমস্যা হয়েছে।",
         isStatsLoading: false,
+      });
+      return false;
+    }
+  },
+
+  updateAboutSummary: async (data: UpdateHomeDataInput) => {
+    try {
+      const response = await homeService.updateAboutSummary(data);
+      // Update homeData if it exists
+      const currentHomeData = get().homeData;
+      if (currentHomeData) {
+        set({
+          homeData: {
+            ...currentHomeData,
+            aboutSummary: response.data.aboutSummary,
+          },
+        });
+      }
+      return true;
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error
+            ? err.message
+            : "আমাদের সম্পর্কে আপডেট করতে সমস্যা হয়েছে।",
       });
       return false;
     }

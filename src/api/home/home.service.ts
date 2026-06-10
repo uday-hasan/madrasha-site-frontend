@@ -31,6 +31,13 @@ export const homeService = {
       body: JSON.stringify(data),
     }),
 
+  // Update about summary (admin only)
+  updateAboutSummary: (data: UpdateHomeDataInput) =>
+    fetcher<ApiResponse<{ aboutSummary: any }>>("/home/about-summary", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   // Upload hero slide image (Admin only)
   uploadImage: (file: File) => {
     const formData = new FormData();
