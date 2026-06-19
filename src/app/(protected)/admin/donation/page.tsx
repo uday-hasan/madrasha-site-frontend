@@ -548,50 +548,58 @@ function MethodDialog({
     id: "",
     type: "bank",
     name: "",
-    details: {
-      accountNumber: "",
-      description: "",
-    },
+    details: {},
   });
+
+  // details as editable key-value pairs
+  const [detailRows, setDetailRows] = useState<
+    { key: string; value: string }[]
+  >([{ key: "", value: "" }]);
 
   useEffect(() => {
     if (editing) {
-      setFormData({
-        ...editing,
-        // Ensure details has the expected structure even if coming from old data
-        details: {
-          accountNumber: editing.details?.accountNumber || "",
-          description: editing.details?.description || "",
-          ...editing.details, // keep any other existing fields if any
-        },
-      });
+      setFormData({ ...editing, details: editing.details ?? {} });
+      const rows = Object.entries(editing.details ?? {}).map(
+        ([key, value]) => ({
+          key,
+          value,
+        }),
+      );
+      setDetailRows(rows.length > 0 ? rows : [{ key: "", value: "" }]);
     } else {
       setFormData({
         id: Date.now().toString(),
         type: "bank",
         name: "",
-        details: {
-          accountNumber: "",
-          description: "",
-        },
+        details: {},
       });
+      setDetailRows([{ key: "", value: "" }]);
     }
   }, [editing, open]);
 
-  // Helper to update specific detail fields
-  const updateDetail = (key: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      details: {
-        ...prev.details,
-        [key]: value,
-      },
-    }));
+  const updateRow = (index: number, field: "key" | "value", val: string) => {
+    setDetailRows((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, [field]: val } : row)),
+    );
+  };
+
+  const addRow = () =>
+    setDetailRows((prev) => [...prev, { key: "", value: "" }]);
+
+  const removeRow = (index: number) =>
+    setDetailRows((prev) => prev.filter((_, i) => i !== index));
+
+  const handleSave = () => {
+    const details: Record<string, string> = {};
+    detailRows.forEach(({ key, value }) => {
+      if (key.trim()) details[key.trim()] = value.trim();
+    });
+    onSave({ ...formData, details });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {editing ? "মাধ্যম সম্পাদনা করুন" : "নতুন মাধ্যম যোগ করুন"}
@@ -627,28 +635,54 @@ function MethodDialog({
             </select>
           </div>
 
-          {/* New Account Number Input */}
+          {/* Dynamic key-value detail rows */}
           <div className="space-y-2">
-            <Label>হিসাব নম্বর / নম্বর</Label>
-            <Input
-              value={formData.details.accountNumber || ""}
-              onChange={(e) => updateDetail("accountNumber", e.target.value)}
-              placeholder="যেমন: ১২৩৪৫৬৭৮৯০ অথবা ০১৭১২-xxxxxx"
-            />
+            <div className="flex items-center justify-between">
+              <Label>বিস্তারিত তথ্য</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addRow}
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                সারি যোগ করুন
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {detailRows.map((row, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <Input
+                    value={row.key}
+                    onChange={(e) => updateRow(index, "key", e.target.value)}
+                    placeholder="যেমন: হিসাব নম্বর"
+                    className="flex-1"
+                  />
+                  <Input
+                    value={row.value}
+                    onChange={(e) => updateRow(index, "value", e.target.value)}
+                    placeholder="মান"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeRow(index)}
+                    disabled={detailRows.length === 1}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              বাম কলাম: লেবেল (যেমন: হিসাব নম্বর) | ডান কলাম: মান (যেমন:
+              1611120044315)
+            </p>
           </div>
 
-          {/* New Description Input */}
-          <div className="space-y-2">
-            <Label>বিস্তারিত বিবরণ</Label>
-            <Textarea
-              value={formData.details.description || ""}
-              onChange={(e) => updateDetail("description", e.target.value)}
-              placeholder="শাখার নাম, রাউটিং নম্বর বা অন্যান্য তথ্য..."
-              rows={3}
-            />
-          </div>
-
-          <Button onClick={() => onSave(formData)} className="w-full">
+          <Button onClick={handleSave} className="w-full">
             সংরক্ষণ করুন
           </Button>
         </div>
